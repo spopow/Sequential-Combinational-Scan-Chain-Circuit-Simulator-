@@ -6,7 +6,7 @@ import csv
 from TVgen import TestVector_A, TestVector_B, TestVector_C, TestVector_D, TestVector_E
 
 
-# Function List:
+# Function List:csv
 # 0. getFaults: gets the faults from the file
 # 1. genFaultList: generates all of the faults and prints them to a file
 # 2. netRead: read the benchmark file and build circuit netlist
@@ -508,6 +508,7 @@ def main():
                 if userInput == "":
                     print("\nERROR: please enter a batch size\n")
                 else:
+<<<<<<< HEAD
                     batchSize = int(userInput)
                     if (batchSize >= 1 & batchSize <= 10):
                         break
@@ -564,6 +565,97 @@ def main():
                             continue
                         # ... or any comments
                         if (line[0] == "#"):
+=======
+                    print("\nERROR: not a valid integer\n")
+
+
+        #gets the faults that need to be tested
+        faults = getFaults("f_list.txt")
+
+        print("\ninput files: circ.bench, f_list.txt, TV_A.txt, TV_B.txt, TV_C.txt, TV_D.txt, TV_E.txt")
+        print("output file: f_cvg.csv")
+
+        print("\nProcessing...\n")
+        # Note: UI code;
+        # **************************************************************************************************************** #
+
+        inputFiles = []
+        inputFiles.append(open("TV_A.txt", "r"))
+        inputFiles.append(open("TV_B.txt", "r"))
+        inputFiles.append(open("TV_C.txt", "r"))
+        inputFiles.append(open("TV_D.txt", "r"))
+        inputFiles.append(open("TV_E.txt", "r"))
+
+        #get seed value and moves the file cursor to the second line
+        seedVal = ""
+        for x in inputFiles:
+            seedVal = x.readline()
+
+        seedVal = seedVal.replace("#seed: ", "")
+        seedVal = format(int(seedVal), "08b")
+
+        totalFaults = len(faults)
+        totalDetected = [0, 0, 0, 0, 0]
+
+        csvFile = open("f_cvg.csv", "w")
+
+        writer = csv.writer(csvFile)
+        writer.writerow(["Batch #", "A", "B", "C", "D", "E", "seed = " + seedVal, "batch size = " + str(batchSize)])
+
+        # Runs the simulator for each line of the input file
+        for batch in range(25):
+            print("Batch: " + str(batch +1) + "...", end = "")
+            # Runs for each test vector file
+            for fileIndex in range(5): 
+                for _ in range(batchSize):
+                    
+                    #reads the newline
+                    line = inputFiles[fileIndex].readline()
+        
+                    # Initializing output variable each input line
+                    output = ""
+
+                    # Do nothing else if empty lines, ...
+                    if (line == "\n"):
+                        continue
+                    # ... or any comments
+                    if (line[0] == "#"):
+                        continue
+
+                    # Removing the the newlines at the end
+                    line = line.replace("\n", "")
+
+                    # Removing spaces
+                    line = line.replace(" ", "")
+
+                    circuit = inputRead(circuit, line)
+
+                    if circuit == -1:
+                        print("INPUT ERROR: INSUFFICIENT BITS")
+                        # After each input line is finished, reset the netList
+                        circuit = newCircuit
+                        print("...move on to next input\n")
+                        continue
+                    elif circuit == -2:
+                        print("INPUT ERROR: INVALID INPUT VALUE/S")
+                        # After each input line is finished, reset the netList
+                        circuit = newCircuit
+                        print("...move on to next input\n")
+                        continue
+
+
+                    circuit = basic_sim(circuit)
+
+                    for y in circuit["OUTPUTS"][1]:
+                        if not circuit[y][2]:
+                            output = "NETLIST ERROR: OUTPUT LINE \"" + y + "\" NOT ACCESSED"
+                            break
+                        output = str(circuit[y][3]) + output
+
+                    for faultLine in faults:
+                        #skips fault if already detected
+                        if(faultLine[fileIndex] == True):
+>>>>>>> 4fde5628fbc0d34bc5eaec1f924aa9182ecaccb4
                             continue
 
                         # Removing the the newlines at the end
