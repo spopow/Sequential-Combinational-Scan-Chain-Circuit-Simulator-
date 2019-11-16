@@ -771,7 +771,7 @@ def main():
                 else:
                     print("\nChoice not valid. Please enter a valid choice.\n")
 
-        if (userThirdChoice == 1):
+        if (userThirdChoice == 1):  # scan chain study
             while True:
                 userFourthChoice = 0
                 print("\nChoose what you would like to do (1, 2, or 3): \n")
@@ -790,15 +790,23 @@ def main():
                         print("\nChoice not valid. Please enter a valid choice.\n")
 
             if (userFourthChoice == 1):
+                print("implementing: Partial Scan Chain\n")
                 implement = 0
 
             if (userFourthChoice == 2):
+                print("implementing: Full Scan Chain\n")
                 implement = 0
 
             if (userFourthChoice == 3):
+                print("implementing: Parallel Scan Chain\n")
                 implement = 0
 
-        if (userThirdChoice == 2):
+        if (userThirdChoice == 2):  # sequential circuit simulation
+            # input t,n,f
+            # t = test vector taken as str-made into binary
+            # n = cycles ran
+            # f = fault
+            # output : content of all ff's, primary outputs
             implement = 0
 
 
