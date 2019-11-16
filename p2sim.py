@@ -424,88 +424,150 @@ def main():
     # **************************************************************************************************************** #
     # NOTE: UI code; Does not contain anything about the actual simulation
 
-    #NOTE: Not sure what this is used for says unused
+    # NOTE: Not sure what this is used for says unused
     # Used for file access
-    #script_dir = os.path.dirname(__file__)  # <-- absolute dir the script is in
+    # script_dir = os.path.dirname(__file__)  # <-- absolute dir the script is in
 
-    
-
-    #gets user choice
+    # gets user choice
     while True:
         userChoice = 0
-        print("\nChoose what you would like to do (1 or 2): \n")
-        print("1: Test Vector Generation\n")
-        print("2: Fault Coverage Simulation\n")
+        print("\nChoose what type of circuit you will be working with (1 or 2): \n")
+        print("1: Combinational Circuit Case Study\n")
+        print("2: Sequential Circuit\n")
         userInput = input()
-        if userInput =="":
+        if userInput == "":
             print("\nPlease Enter a value\n")
             break
-        else: 
+        else:
             userChoice = int(userInput)
-            if(userChoice >= 1 & userChoice <= 2):
+            if (userChoice >= 1 & userChoice <= 2):
                 break
             else:
                 print("\nChoice not valid. Please enter a valid choice.\n")
 
     circuit = netRead("circ.bench")
 
-
     # keep an initial (unassigned any value) copy of the circuit for an easy reset
     newCircuit = circuit
 
-
-    if(userChoice == 1):
-        #get seed
+    if (userChoice == 1):
         while True:
-            print("\nOption 1: Test Vector Generation.")
-            seedVal = 0
-            print("Choose a seed in [1, 255]: ", end = "")
+            userSecondChoice = 0
+            print("\nChoose what you would like to do (1 or 2): \n")
+            print("1: Test Vector Generation\n")
+            print("2: Fault Coverage Simulation\n")
             userInput = input()
-            if userInput =="":
-                print("\nERROR: No Seed Chosen\n")
-            else: 
-                seedVal = int(userInput)
-                if(seedVal >= 1 & seedVal <= 255):
+            if userInput == "":
+                print("\nPlease Enter a value\n")
+                break
+            else:
+                userSecondChoice = int(userInput)
+                if (userSecondChoice >= 1 & userSecondChoice <= 2):
                     break
                 else:
-                    print("\nERROR: Value not within range.\n")
-            
-        
-        print("\ninput file: circ.bench")
-        print("ouptut files: TV_A.txt, TV_B.txt, TV_C.txt, TV_D.txt, TV_E.txt")
+                    print("\nChoice not valid. Please enter a valid choice.\n")
 
-        print("\nProcessing...\n")
-        print("TV_A...", end = ""),
-        TestVector_A(circuit["INPUT_WIDTH"][1], seedVal)
-        print("done\nTV_B...", end = ""),
-        TestVector_B(circuit["INPUT_WIDTH"][1], seedVal)
-        print("done\nTV_C...", end = ""),
-        TestVector_E(circuit["INPUT_WIDTH"][1], seedVal)
-        print("done\nTV_D...", end = ""),
-        TestVector_D(circuit["INPUT_WIDTH"][1], seedVal)
-        print("done\nTV_C...", end = ""),
-        TestVector_C(circuit["INPUT_WIDTH"][1], seedVal)
-        print("done\n\nDone.")
-
-    elif(userChoice == 2):
-
-        #get batch size
-        while True:
-            print("\nOption 2: Fault Coverage Simulation.")
-            batchSize = 1
-            print("Choose a batch size in [1, 10]: ", end = "")
-            userInput = input()
-            if userInput =="":
-                print("\nERROR: please enter a batch size\n")
-            else: 
-                batchSize = int(userInput)
-                if(batchSize >= 1 & batchSize <= 10):
-                    break
+        if (userSecondChoice == 1):
+            while True:
+                print("\nOption 1: Test Vector Generation.")
+                seedVal = 0
+                print("Choose a seed in [1, 255]: ", end="")
+                userInput = input()
+                if userInput == "":
+                    print("\nERROR: No Seed Chosen\n")
                 else:
-                    print("\nERROR: not a valid integer\n")
+                    seedVal = int(userInput)
+                    if (seedVal >= 1 & seedVal <= 255):
+                        break
+                    else:
+                        print("\nERROR: Value not within range.\n")
 
+            print("\ninput file: circ.bench")
+            print("ouptut files: TV_A.txt, TV_B.txt, TV_C.txt, TV_D.txt, TV_E.txt")
 
-        #gets the faults that need to be tested
+            print("\nProcessing...\n")
+            print("TV_A...", end=""),
+            TestVector_A(circuit["INPUT_WIDTH"][1], seedVal)
+            print("done\nTV_B...", end=""),
+            TestVector_B(circuit["INPUT_WIDTH"][1], seedVal)
+            print("done\nTV_C...", end=""),
+            TestVector_E(circuit["INPUT_WIDTH"][1], seedVal)
+            print("done\nTV_D...", end=""),
+            TestVector_D(circuit["INPUT_WIDTH"][1], seedVal)
+            print("done\nTV_C...", end=""),
+            TestVector_C(circuit["INPUT_WIDTH"][1], seedVal)
+            print("done\n\nDone.")
+
+        elif (userSecondChoice == 2):
+
+            # get batch size
+            while True:
+                print("\nOption 2: Fault Coverage Simulation.")
+                batchSize = 1
+                print("Choose a batch size in [1, 10]: ", end="")
+                userInput = input()
+                if userInput == "":
+                    print("\nERROR: please enter a batch size\n")
+                else:
+                    batchSize = int(userInput)
+                    if (batchSize >= 1 & batchSize <= 10):
+                        break
+                    else:
+                        print("\nERROR: not a valid integer\n")
+
+            # gets the faults that need to be tested
+            faults = getFaults("f_list.txt")
+
+            print("\ninput files: circ.bench, f_list.txt, TV_A.txt, TV_B.txt, TV_C.txt, TV_D.txt, TV_E.txt")
+            print("output file: f_cvg.csv")
+
+            print("\nProcessing...\n")
+            # Note: UI code;
+            # ******************************************************************************************************** #
+
+            inputFiles = []
+            inputFiles.append(open("TV_A.txt", "r"))
+            inputFiles.append(open("TV_B.txt", "r"))
+            inputFiles.append(open("TV_C.txt", "r"))
+            inputFiles.append(open("TV_D.txt", "r"))
+            inputFiles.append(open("TV_E.txt", "r"))
+
+            # get seed value and moves the file cursor to the second line
+            seedVal = ""
+            for x in inputFiles:
+                seedVal = x.readline()
+
+            seedVal = seedVal.replace("#seed: ", "")
+            seedVal = format(int(seedVal), "08b")
+
+            totalFaults = len(faults)
+            totalDetected = [0, 0, 0, 0, 0]
+
+            csvFile = open("f_cvg.csv", "w")
+
+            writer = csv.writer(csvFile)
+            writer.writerow(["Batch #", "A", "B", "C", "D", "E", "seed = " + seedVal, "batch size = " + str(batchSize)])
+
+            # Runs the simulator for each line of the input file
+            for batch in range(25):
+                print("Batch: " + str(batch + 1) + "...", end="")
+                for fileIndex in range(5):
+                    for _ in range(batchSize):
+
+                        # reads the newline
+                        line = inputFiles[fileIndex].readline()
+
+                        # Initializing output variable each input line
+                        output = ""
+
+                        # Do nothing else if empty lines, ...
+                        if (line == "\n"):
+                            continue
+                        # ... or any comments
+                        if (line[0] == "#"):
+                            print("\nERROR: not a valid integer\n")
+
+        # gets the faults that need to be tested
         faults = getFaults("f_list.txt")
 
         print("\ninput files: circ.bench, f_list.txt, TV_A.txt, TV_B.txt, TV_C.txt, TV_D.txt, TV_E.txt")
@@ -522,7 +584,7 @@ def main():
         inputFiles.append(open("TV_D.txt", "r"))
         inputFiles.append(open("TV_E.txt", "r"))
 
-        #get seed value and moves the file cursor to the second line
+        # get seed value and moves the file cursor to the second line
         seedVal = ""
         for x in inputFiles:
             seedVal = x.readline()
@@ -540,14 +602,14 @@ def main():
 
         # Runs the simulator for each line of the input file
         for batch in range(25):
-            print("Batch: " + str(batch +1) + "...", end = "")
+            print("Batch: " + str(batch + 1) + "...", end="")
             # Runs for each test vector file
-            for fileIndex in range(5): 
+            for fileIndex in range(5):
                 for _ in range(batchSize):
-                    
-                    #reads the newline
+
+                    # reads the newline
                     line = inputFiles[fileIndex].readline()
-        
+
                     # Initializing output variable each input line
                     output = ""
 
@@ -579,7 +641,6 @@ def main():
                         print("...move on to next input\n")
                         continue
 
-
                     circuit = basic_sim(circuit)
 
                     for y in circuit["OUTPUTS"][1]:
@@ -589,73 +650,156 @@ def main():
                         output = str(circuit[y][3]) + output
 
                     for faultLine in faults:
-                        #skips fault if already detected
-                        if(faultLine[fileIndex] == True):
+                        # skips fault if already detected
+                        if (faultLine[fileIndex] == True):
                             continue
 
-                        #creates a copy of the circuit to be used for fault testing
-                        faultCircuit = copy.deepcopy(circuit)
+                        # Removing the the newlines at the end
+                        line = line.replace("\n", "")
 
-                        for key in faultCircuit:
-                            if (key[0:5]=="wire_"):
-                                faultCircuit[key][2] = False
-                                faultCircuit[key][3] = 'U'
-                        
-                        #sets up the inputs for the fault circuit
-                        faultCircuit = inputRead(faultCircuit, line)
+                        # Removing spaces
+                        line = line.replace(" ", "")
 
-                        #handles stuck at faults
-                        if(faultLine[5][1] == "SA"):
+                        circuit = inputRead(circuit, line)
+
+                        if circuit == -1:
+                            print("INPUT ERROR: INSUFFICIENT BITS")
+                            # After each input line is finished, reset the netList
+                            circuit = newCircuit
+                            print("...move on to next input\n")
+                            continue
+                        elif circuit == -2:
+                            print("INPUT ERROR: INVALID INPUT VALUE/S")
+                            # After each input line is finished, reset the netList
+                            circuit = newCircuit
+                            print("...move on to next input\n")
+                            continue
+
+                        circuit = basic_sim(circuit)
+
+                        for y in circuit["OUTPUTS"][1]:
+                            if not circuit[y][2]:
+                                output = "NETLIST ERROR: OUTPUT LINE \"" + y + "\" NOT ACCESSED"
+                                break
+                            output = str(circuit[y][3]) + output
+
+                        for faultLine in faults:
+                            # skips fault if already detected
+                            if (faultLine[fileIndex] == True):
+                                continue
+
+                            # creates a copy of the circuit to be used for fault testing
+                            faultCircuit = copy.deepcopy(circuit)
+
                             for key in faultCircuit:
-                                if(faultLine[5][0] == key[5:]):
+                                if (key[0:5] == "wire_"):
+                                    faultCircuit[key][2] = False
+                                    faultCircuit[key][3] = 'U'
+
+                            # sets up the inputs for the fault circuit
+                            faultCircuit = inputRead(faultCircuit, line)
+
+                            # handles stuck at faults
+                            if (faultLine[5][1] == "SA"):
+                                for key in faultCircuit:
+                                    if (faultLine[5][0] == key[5:]):
                                         faultCircuit[key][2] = True
                                         faultCircuit[key][3] = faultLine[5][2]
 
-                        #handles in in stuck at faults by making a new "wire"
-                        elif(faultLine[5][1] == "IN"):
-                            faultCircuit["faultWire"] = ["FAULT", "NONE", True, faultLine[5][4]]
+                            # handles in in stuck at faults by making a new "wire"
+                            elif (faultLine[5][1] == "IN"):
+                                faultCircuit["faultWire"] = ["FAULT", "NONE", True, faultLine[5][4]]
 
-                            #finds the input that needs to be changed to the fault line
-                            for key in faultCircuit:
-                                if(faultLine[5][0] == key[5:]):
-                                    inputIndex = 0
-                                    for gateInput in faultCircuit[key][1]:
-                                        if(faultLine[5][2] == gateInput[5:]):
-                                            faultCircuit[key][1][inputIndex] = "faultWire"
-                                        
-                                        inputIndex += 1
-                        
-                        #runs Circuit Simulation
-                        faultCircuit = basic_sim(faultCircuit)
-                        
-                        #gets the output
-                        faultOutput = ""
-                        for y in faultCircuit["OUTPUTS"][1]:
-                            if not faultCircuit[y][2]:
-                                faultOutput = "NETLIST ERROR: OUTPUT LINE \"" + y + "\" NOT ACCESSED"
-                                break
-                            faultOutput = str(faultCircuit[y][3]) + faultOutput
+                                # finds the input that needs to be changed to the fault line
+                                for key in faultCircuit:
+                                    if (faultLine[5][0] == key[5:]):
+                                        inputIndex = 0
+                                        for gateInput in faultCircuit[key][1]:
+                                            if (faultLine[5][2] == gateInput[5:]):
+                                                faultCircuit[key][1][inputIndex] = "faultWire"
 
-                        #checks to see if the fault was detected
-                        if(output != faultOutput):
-                            faultLine[fileIndex] = True
-                            totalDetected[fileIndex] += 1
-                
-                    for key in circuit:
-                        if (key[0:5]=="wire_"):
-                            circuit[key][2] = False
-                            circuit[key][3] = 'U'
+                                            inputIndex += 1
 
-            writer.writerow([batch + 1, totalDetected[0]/totalFaults*100, totalDetected[1]/totalFaults*100, totalDetected[2]/totalFaults*100, totalDetected[3]/totalFaults*100, totalDetected[4]/totalFaults*100])
-            print("done")
+                            # runs Circuit Simulation
+                            faultCircuit = basic_sim(faultCircuit)
 
-        for x in inputFiles:
-            x.close()
-        csvFile.close()
+                            # gets the output
+                            faultOutput = ""
+                            for y in faultCircuit["OUTPUTS"][1]:
+                                if not faultCircuit[y][2]:
+                                    faultOutput = "NETLIST ERROR: OUTPUT LINE \"" + y + "\" NOT ACCESSED"
+                                    break
+                                faultOutput = str(faultCircuit[y][3]) + faultOutput
 
-        print("\nDone.")
-        
-        plot()
+                            # checks to see if the fault was detected
+                            if (output != faultOutput):
+                                faultLine[fileIndex] = True
+                                totalDetected[fileIndex] += 1
+
+                        for key in circuit:
+                            if (key[0:5] == "wire_"):
+                                circuit[key][2] = False
+                                circuit[key][3] = 'U'
+
+                writer.writerow([batch + 1, totalDetected[0] / totalFaults * 100, totalDetected[1] / totalFaults * 100,
+                                 totalDetected[2] / totalFaults * 100, totalDetected[3] / totalFaults * 100,
+                                 totalDetected[4] / totalFaults * 100])
+                print("done")
+
+            for x in inputFiles:
+                x.close()
+            csvFile.close()
+
+            print("\nDone.")
+
+            plot()
+
+    if (userChoice == 2):
+        while True:
+            userThirdChoice = 0
+            print("\nChoose what you would like to do (1 or 2): \n")
+            print("1: Scan Chain Study\n")
+            print("2: Sequential Circuit Simulation\n")
+            userInput = input()
+            if userInput == "":
+                print("\nPlease Enter a value\n")
+                break
+            else:
+                userThirdChoice = int(userInput)
+                if (userChoice >= 1 & userChoice <= 2):
+                    break
+                else:
+                    print("\nChoice not valid. Please enter a valid choice.\n")
+
+        if (userThirdChoice == 1):
+            while True:
+                userFourthChoice = 0
+                print("\nChoose what you would like to do (1, 2, or 3): \n")
+                print("1: Partial Scan Chain\n")
+                print("2: Full Scan Chain\n")
+                print("3: Parallel Scan Chain\n")
+                userInput = input()
+                if userInput == "":
+                    print("\nPlease Enter a value\n")
+                    break
+                else:
+                    userFourthChoice = int(userInput)
+                    if (userFourthChoice >= 1 & userFourthChoice <= 3):
+                        break
+                    else:
+                        print("\nChoice not valid. Please enter a valid choice.\n")
+
+            if (userFourthChoice == 1):
+                implement = 0
+
+            if (userFourthChoice == 2):
+                implement = 0
+
+            if (userFourthChoice == 3):
+                implement = 0
+
+        if (userThirdChoice == 2):
+            implement = 0
 
 
 if __name__ == "__main__":
