@@ -5,7 +5,7 @@ import subprocess
 import csv
 from TVgen import TestVector_A, TestVector_B, TestVector_C, TestVector_D, TestVector_E 
 
-# Function List:
+# Function List:csv
 # 0. getFaults: gets the faults from the file
 # 1. genFaultList: generates all of the faults and prints them to a file
 # 2. netRead: read the benchmark file and build circuit netlist
@@ -541,7 +541,8 @@ def main():
         # Runs the simulator for each line of the input file
         for batch in range(25):
             print("Batch: " + str(batch +1) + "...", end = "")
-            for fileIndex in range(5):
+            # Runs for each test vector file
+            for fileIndex in range(5): 
                 for _ in range(batchSize):
                     
                     #reads the newline
