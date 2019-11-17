@@ -806,7 +806,24 @@ def main():
             # t = test vector taken as str-made into binary
             # n = cycles ran
             # f = fault
-            # output : content of all ff's, primary outputs
+            # output : content of all ff's, primary outputs for good circuit and a fault
+            print("Sequential Circuit Simulation\n")
+            print("----------------------------------------------------\n")
+
+            # alexis
+            print("input a circuit bench mark : \n")
+            # take file name and generate fault list for bench file ; output to terminal as list of numbers
+            print("Enter integer value of fault you want to model: \n")
+            # validate number less than or equal to number of faults
+
+            # Szymon
+            print("input a test vector (integer): \n")
+            # function to validate input accounting for neg numbers/output binary string
+
+            # jas
+            print("input number of cycles you want to simulate (integer): \n")
+            #  function to simulate clock and incorporate into DFFs for basic_sim already given
+
             implement = 0
 
 
