@@ -812,9 +812,9 @@ def main():
             print("----------------------------------------------------\n")
 
             # alexis
-            print("input a circuit bench mark : \n")
+            circuit_bench = input("input a circuit bench mark : \n")
             # take file name and generate fault list for bench file ; output to terminal as list of numbers
-            print("Enter integer value of fault you want to model: \n")
+            input("Enter integer value of fault you want to model: \n")
             # validate number less than or equal to number of faults
 
             # Szymon
@@ -822,14 +822,13 @@ def main():
             # function to validate input accounting for neg numbers/output binary string
 
             # jas
-
             num_cycles = 5
             while True:
                 cycleInput = input("input number of cycles you want to simulate (integer):")
                 if cycleInput == "":
                     print("will simulate for n =" + num_cycles + "\n")
                     break
-                elif (int(cycleInput) <= 0):
+                elif int(cycleInput) <= 0:
                     print("Your input value is not an integer/less than 0")
                 else:
                     print("your input: " + cycleInput + " is not an integer please try again\n")
