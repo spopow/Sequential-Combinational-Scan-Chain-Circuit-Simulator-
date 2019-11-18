@@ -3,6 +3,7 @@ import copy
 import os
 import subprocess
 import csv
+import genFaultList
 from TVgen import TestVector_A, TestVector_B, TestVector_C, TestVector_D, TestVector_E 
 from circuit_sim_result import output_file
 
@@ -725,10 +726,9 @@ def main():
             print("----------------------------------------------------\n")
 
             # alexis
-            circuit_bench = input("input a circuit bench mark : \n")
+            circuit_bench = input("Input a circuit benchmark: ")
             # take file name and generate fault list for bench file ; output to terminal as list of numbers
-            input("Enter integer value of fault you want to model: \n")
-            # validate number less than or equal to number of faults
+            fault = genFaultList.getFaultList(circuit_bench)
 
             # Szymon
             print("input a test vector (integer): \n")
