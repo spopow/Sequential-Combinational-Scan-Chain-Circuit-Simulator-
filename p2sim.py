@@ -6,6 +6,7 @@ import csv
 import genFaultList
 from TVgen import TestVector_A, TestVector_B, TestVector_C, TestVector_D, TestVector_E 
 from circuit_sim_result import output_file
+from testVectorUI import inputSizeFinder, twoComptoBinary, testVectorGen
 
 # Function List:csv
 # 0. getFaults: gets the faults from the file
@@ -731,8 +732,18 @@ def main():
             fault = genFaultList.getFaultList(circuit_bench)
 
             # Szymon
-            print("input a test vector (integer): \n")
-            # function to validate input accounting for neg numbers/output binary string
+            while True:
+                print("\n Use 0 as your test vector? Otherwise, select a different integer value ")
+                userInput = input()
+                if userInput =="":
+                    print(" \nYour integer for your test vector is: ", intVal)
+                    break
+                else: 
+                    intVal = int(userInput)
+                    print(" \nYour integer for your test vector is: ", intVal)
+                    break
+            print(testVectorGen(circuit_bench, intVal)) #this will need to be passed to the simulator
+           
 
             # jas
             num_cycles = 5
