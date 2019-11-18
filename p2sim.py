@@ -748,8 +748,7 @@ def main():
 
             #  function to simulate clock and incorporate into DFFs for basic_sim already given
             # print file
-            bench_file = "s27.bench"
-            output_file(bench_file, num_cycles)
+            output_file(circuit_bench, num_cycles)
 
 
 if __name__ == "__main__":
