@@ -4,7 +4,7 @@ import os
 import subprocess
 import csv
 import genFaultList
-from TVgen import TestVector_A, TestVector_B, TestVector_C, TestVector_D, TestVector_E 
+from TVgen import TestVector_A, TestVector_B, TestVector_C, TestVector_D, TestVector_E, MarsenneTwisterPRTG
 from circuit_sim_result import output_file
 from testVectorUI import inputSizeFinder, twoComptoBinary, testVectorGen
 
@@ -487,19 +487,22 @@ def main():
                         print("\nERROR: Value not within range.\n")
 
             print("\ninput file: circ.bench")
-            print("ouptut files: TV_A.txt, TV_B.txt, TV_C.txt, TV_D.txt, TV_E.txt")
+            print("ouptut files: TV_E.txt, MarsenneTwisterPRTG.txt")
 
             print("\nProcessing...\n")
-            print("TV_A...", end=""),
-            TestVector_A(circuit["INPUT_WIDTH"][1], seedVal)
-            print("done\nTV_B...", end=""),
-            TestVector_B(circuit["INPUT_WIDTH"][1], seedVal)
-            print("done\nTV_C...", end=""),
+            # print("TV_A...", end=""),
+            # TestVector_A(circuit["INPUT_WIDTH"][1], seedVal)
+            # print("done\nTV_B...", end=""),
+            # TestVector_B(circuit["INPUT_WIDTH"][1], seedVal)
+            
+            # print("done\nTV_D...", end=""),
+            # TestVector_D(circuit["INPUT_WIDTH"][1], seedVal)
+            # print("done\nTV_C...", end=""),
+            # TestVector_C(circuit["INPUT_WIDTH"][1], seedVal)
+            print("done\nTV_E...", end=""),
             TestVector_E(circuit["INPUT_WIDTH"][1], seedVal)
-            print("done\nTV_D...", end=""),
-            TestVector_D(circuit["INPUT_WIDTH"][1], seedVal)
-            print("done\nTV_C...", end=""),
-            TestVector_C(circuit["INPUT_WIDTH"][1], seedVal)
+            print("done\nMarsenneTwisterPRTG...", end=""),
+            MarsenneTwisterPRTG(circuit["INPUT_WIDTH"][1])
             print("done\n\nDone.")
 
         elif (userSecondChoice == 2):
@@ -521,7 +524,7 @@ def main():
             # gets the faults that need to be tested
             faults = getFaults("f_list.txt")
 
-            print("\ninput files: circ.bench, f_list.txt, TV_A.txt, TV_B.txt, TV_C.txt, TV_D.txt, TV_E.txt")
+            print("\ninput files: circ.bench, TV_E.txt, MarsenneTwisterPRTG.txt")
             print("output file: f_cvg.csv")
 
             print("\nProcessing...\n")
@@ -529,32 +532,33 @@ def main():
             # **************************************************************************************************************** #
 
             inputFiles = []
-            inputFiles.append(open("TV_A.txt", "r"))
-            inputFiles.append(open("TV_B.txt", "r"))
-            inputFiles.append(open("TV_C.txt", "r"))
-            inputFiles.append(open("TV_D.txt", "r"))
+            # inputFiles.append(open("TV_A.txt", "r"))
+            # inputFiles.append(open("TV_B.txt", "r"))
+            # inputFiles.append(open("TV_C.txt", "r"))
+            # inputFiles.append(open("TV_D.txt", "r"))
             inputFiles.append(open("TV_E.txt", "r"))
+            inputFiles.append(open("MarsenneTwisterPRTG.txt", "r"))
 
             # get seed value and moves the file cursor to the second line
-            seedVal = ""
-            for x in inputFiles:
-                seedVal = x.readline()
+            # seedVal = ""
+            # for x in inputFiles:
+            #     seedVal = x.readline()
 
-            seedVal = seedVal.replace("#seed: ", "")
-            seedVal = format(int(seedVal), "08b")
+            # seedVal = seedVal.replace("#seed: ", "")
+            # seedVal = format(int(seedVal), "08b")
 
             totalFaults = len(faults)
-            totalDetected = [0, 0, 0, 0, 0]
+            totalDetected = [0, 0]
 
             csvFile = open("f_cvg.csv", "w")
 
             writer = csv.writer(csvFile)
-            writer.writerow(["Batch #", "A", "B", "C", "D", "E", "seed = " + seedVal, "batch size = " + str(batchSize)])
+            writer.writerow(["Batch #", "E", "MarsenneTwisterPRTG", "batch size = " + str(batchSize)])
 
             # Runs the simulator for each line of the input file
             for batch in range(25):
                 print("Batch: " + str(batch + 1) + "...", end="")
-                for fileIndex in range(5):
+                for fileIndex in range(2):
                     for _ in range(batchSize):
 
                         # reads the newline
@@ -657,9 +661,7 @@ def main():
                                 circuit[key][2] = False
                                 circuit[key][3] = 'U'
 
-                writer.writerow([batch + 1, totalDetected[0] / totalFaults * 100, totalDetected[1] / totalFaults * 100,
-                                 totalDetected[2] / totalFaults * 100, totalDetected[3] / totalFaults * 100,
-                                 totalDetected[4] / totalFaults * 100])
+                writer.writerow([batch + 1, totalDetected[0] / totalFaults * 100, totalDetected[1] / totalFaults * 100])
                 print("done")
 
             for x in inputFiles:
@@ -759,6 +761,7 @@ def main():
 
             #  function to simulate clock and incorporate into DFFs for basic_sim already given
             # print file
+            
             output_file(circuit_bench, num_cycles)
 
 

@@ -1,5 +1,6 @@
 import os
 import math
+import random
 
 def convert(s): 
   
@@ -198,3 +199,18 @@ def TestVector_E(inputSize, startSeed):
         #Writes and resets for the next output
         outputFile.write(outVect + '\n')
         outVect = ''
+
+
+def MarsenneTwisterPRTG(inputSize):
+    outVect = ''
+    outputName = "MarsenneTwisterPRTG.txt"
+
+    outputFile = open(outputName,"w")
+   
+    for x in range(255):
+        outVect = random.randint(0, 2**(inputSize -1))
+        outVect = format(outVect, '0'+str(inputSize)+'b')
+        outputFile.write(outVect + '\n')
+
+    
+
