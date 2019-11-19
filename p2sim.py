@@ -734,15 +734,18 @@ def main():
             fault = genFaultList.getFaultList(circuit_bench)
 
             # Szymon
+            intVal = 0
             while True:
-                print("\n Use 0 as your test vector? Otherwise, select a different integer value ")
+                print("\nUse 0 as your test vector? Otherwise, select a different integer value ")
                 userInput = input()
                 if userInput =="":
-                    print(" \nYour integer for your test vector is: ", intVal)
+                    print("\nYour integer for your test vector is: ", intVal)
                     break
+                elif(not userInput.isnumeric()):
+                    print("\nYour input value is not an integer")
                 else: 
                     intVal = int(userInput)
-                    print(" \nYour integer for your test vector is: ", intVal)
+                    print("\nYour integer for your test vector is: ", intVal)
                     break
             print(testVectorGen(circuit_bench, intVal)) #this will need to be passed to the simulator
            
@@ -750,14 +753,19 @@ def main():
             # jas
             num_cycles = 5
             while True:
-                cycleInput = input("input number of cycles you want to simulate (integer):")
+                print("\nUse 5 for cycle simulation? Or, please input an integer value for the number of cycles you want to simulate: ")
+                cycleInput = input()
                 if cycleInput == "":
-                    print("will simulate for n =" + num_cycles + "\n")
+                    print("\nWill simulate for n = " + str(num_cycles) + "\n")
                     break
-                elif int(cycleInput) <= 0:
-                    print("Your input value is not an integer/less than 0")
+                elif (not cycleInput.isdigit()):
+                    print("\nYour input value is not an integer or it's less than 0")
+                elif (int(cycleInput) <= 0 ):
+                    print("\nYour input value should be greater than 0")
                 else:
-                    print("your input: " + cycleInput + " is not an integer please try again\n")
+                    print("\nYour input is: ", cycleInput)
+                    num_cycles = int(cycleInput)
+                    break
 
             #  function to simulate clock and incorporate into DFFs for basic_sim already given
             # print file
