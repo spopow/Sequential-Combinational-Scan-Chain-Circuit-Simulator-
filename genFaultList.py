@@ -93,7 +93,7 @@ def getFaultList(netName):
         print(index, '. ' + fault, sep='', end='\n')
 
     while True:
-        print("\nEnter the integer value of the fault you would like to run fault simulation for (default is 1): \n")
+        print("\nEnter the integer value of the fault you would like to run fault simulation for (default is 1): ")
         userInput = input()
         if userInput == "":
             userChoice = 1

@@ -1,6 +1,7 @@
 
 import os
 import math
+import random
 
 def convert(s): 
   
@@ -215,6 +216,16 @@ def TestVector_E(inputSize, startSeed):
         outputFile.write(outVect + '\n')
         outVect = ''
             
+def MarsenneTwisterPRTG(inputSize):
+    outVect = ''
+    outputName = "MarsenneTwisterPRTG.txt"
+
+    outputFile = open(outputName,"w")
+   
+    for x in range(255):
+        outVect = random.randint(0, 2**(inputSize -1))
+        outVect = format(outVect, '0'+str(inputSize)+'b')
+        outputFile.write(outVect + '\n')
             
 #input bench file
 def main():
@@ -260,6 +271,8 @@ def main():
     TestVector_E(inputSize, seedVal)
     TestVector_D(inputSize, seedVal)
     TestVector_C(inputSize, seedVal)
+    MarsenneTwisterPRTG(inputSize)
+    
 
 
 if __name__ == "__main__":
