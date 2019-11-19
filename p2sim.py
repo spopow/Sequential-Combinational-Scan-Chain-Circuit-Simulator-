@@ -66,12 +66,14 @@ def printCkt (circuit):
 # FUNCTION: Reading in the Circuit gate-level netlist file:
 def netRead(netName):
     # Opening the netlist file:
+    global dff_out
     netFile = open(netName, "r")
 
     # temporary variables
     inputs = []     # array of the input wires
     outputs = []    # array of the output wires
     gates = []      # array of the gate list
+    dffs = []       # array of dffs
     inputBits = 0   # the number of inputs needed in this given circuit
 
 
@@ -100,7 +102,7 @@ def netRead(netName):
         # z=LOGIC(a,b,c,...)
 
         # Read a INPUT wire and add to circuit:
-        if (line[0:5] == "INPUT"):
+        if line[0:5] == "INPUT":
             # Removing everything but the line variable name
             line = line.replace("INPUT", "")
             line = line.replace("(", "")
@@ -138,9 +140,12 @@ def netRead(netName):
             outputs.append("wire_" + line)
             continue
 
-        # Read a gate output wire, and add to the circuit dictionary
-        lineSpliced = line.split("=") # splicing the line at the equals sign to get the gate output wire
-        gateOut = "wire_" + lineSpliced[0]
+        # Read a gate/dff output wire, and add to the circuit dictionary
+        lineSpliced = line.split("=")  # splicing the line at the equals sign to get the gate output wire
+        if "DFF" in lineSpliced:
+            dff_out = "wire_" + lineSpliced[0]
+        else:
+            gateOut = "wire_" + lineSpliced[0]
 
         # Error detection: line being made already exists
         if gateOut in circuit:
@@ -148,10 +153,16 @@ def netRead(netName):
             print(msg+"\n")
             return msg
 
-        # Appending the dest name to the gate list
-        gates.append(gateOut)
+        if dff_out in circuit:
+            msg = "NETLIST ERROR: DFF OUTPUT LINE \"" + dff_out + "\" ALREADY EXISTS PREVIOUSLY IN NETLIST"
+            print(msg + "\n")
+            return msg
 
-        lineSpliced = lineSpliced[1].split("(") # splicing the line again at the "("  to get the gate logic
+        # Appending the dest name to the gate list/dff list
+        gates.append(gateOut)
+        dffs.append(dff_out)
+
+        lineSpliced = lineSpliced[1].split("(")  # splicing the line again at the "("  to get the gate logic
         logic = lineSpliced[0].upper()
 
 
@@ -160,8 +171,9 @@ def netRead(netName):
         # Turning each term into an integer before putting it into the circuit dictionary
         terms = ["wire_" + x for x in terms]
 
-        # add the gate output wire to the circuit dictionary with the dest as the key
+        # add the gate/dff output wire to the circuit dictionary with the dest as the key
         circuit[gateOut] = [logic, terms, False, 'U']
+        circuit[dff_out] = [logic, terms, False, 'U']
         #print(gateOut)
         #print(circuit[gateOut])
 
@@ -173,12 +185,14 @@ def netRead(netName):
     circuit["INPUTS"] = ["Input list", inputs]
     circuit["OUTPUTS"] = ["Output list", outputs]
     circuit["GATES"] = ["Gate list", gates]
+    circuit["DFFS"] = ["DFF list", dffs]
 
     #print("\n bookkeeping items in circuit: \n")
     #print(circuit["INPUT_WIDTH"])
     #print(circuit["INPUTS"])
     #print(circuit["OUTPUTS"])
     #print(circuit["GATES"])
+    #print(circuits["DFFS"])
 
 
     return circuit
