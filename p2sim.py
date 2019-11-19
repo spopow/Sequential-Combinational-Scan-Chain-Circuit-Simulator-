@@ -4,8 +4,9 @@ import os
 import subprocess
 import csv
 import genFaultList
-from TVgen import TestVector_A, TestVector_B, TestVector_C, TestVector_D, TestVector_E 
+from TVgen import TestVector_A, TestVector_B, TestVector_C, TestVector_D, TestVector_E, MarsenneTwisterPRTG
 from circuit_sim_result import output_file
+from testVectorUI import inputSizeFinder, twoComptoBinary, testVectorGen
 
 # Function List:csv
 # 0. getFaults: gets the faults from the file
@@ -500,19 +501,22 @@ def main():
                         print("\nERROR: Value not within range.\n")
 
             print("\ninput file: circ.bench")
-            print("ouptut files: TV_A.txt, TV_B.txt, TV_C.txt, TV_D.txt, TV_E.txt")
+            print("ouptut files: TV_E.txt, MarsenneTwisterPRTG.txt")
 
             print("\nProcessing...\n")
-            print("TV_A...", end=""),
-            TestVector_A(circuit["INPUT_WIDTH"][1], seedVal)
-            print("done\nTV_B...", end=""),
-            TestVector_B(circuit["INPUT_WIDTH"][1], seedVal)
-            print("done\nTV_C...", end=""),
+            # print("TV_A...", end=""),
+            # TestVector_A(circuit["INPUT_WIDTH"][1], seedVal)
+            # print("done\nTV_B...", end=""),
+            # TestVector_B(circuit["INPUT_WIDTH"][1], seedVal)
+            
+            # print("done\nTV_D...", end=""),
+            # TestVector_D(circuit["INPUT_WIDTH"][1], seedVal)
+            # print("done\nTV_C...", end=""),
+            # TestVector_C(circuit["INPUT_WIDTH"][1], seedVal)
+            print("done\nTV_E...", end=""),
             TestVector_E(circuit["INPUT_WIDTH"][1], seedVal)
-            print("done\nTV_D...", end=""),
-            TestVector_D(circuit["INPUT_WIDTH"][1], seedVal)
-            print("done\nTV_C...", end=""),
-            TestVector_C(circuit["INPUT_WIDTH"][1], seedVal)
+            print("done\nMarsenneTwisterPRTG...", end=""),
+            MarsenneTwisterPRTG(circuit["INPUT_WIDTH"][1])
             print("done\n\nDone.")
 
         elif (userSecondChoice == 2):
@@ -534,7 +538,7 @@ def main():
             # gets the faults that need to be tested
             faults = getFaults("f_list.txt")
 
-            print("\ninput files: circ.bench, f_list.txt, TV_A.txt, TV_B.txt, TV_C.txt, TV_D.txt, TV_E.txt")
+            print("\ninput files: circ.bench, TV_E.txt, MarsenneTwisterPRTG.txt")
             print("output file: f_cvg.csv")
 
             print("\nProcessing...\n")
@@ -542,32 +546,33 @@ def main():
             # **************************************************************************************************************** #
 
             inputFiles = []
-            inputFiles.append(open("TV_A.txt", "r"))
-            inputFiles.append(open("TV_B.txt", "r"))
-            inputFiles.append(open("TV_C.txt", "r"))
-            inputFiles.append(open("TV_D.txt", "r"))
+            # inputFiles.append(open("TV_A.txt", "r"))
+            # inputFiles.append(open("TV_B.txt", "r"))
+            # inputFiles.append(open("TV_C.txt", "r"))
+            # inputFiles.append(open("TV_D.txt", "r"))
             inputFiles.append(open("TV_E.txt", "r"))
+            inputFiles.append(open("MarsenneTwisterPRTG.txt", "r"))
 
             # get seed value and moves the file cursor to the second line
-            seedVal = ""
-            for x in inputFiles:
-                seedVal = x.readline()
+            # seedVal = ""
+            # for x in inputFiles:
+            #     seedVal = x.readline()
 
-            seedVal = seedVal.replace("#seed: ", "")
-            seedVal = format(int(seedVal), "08b")
+            # seedVal = seedVal.replace("#seed: ", "")
+            # seedVal = format(int(seedVal), "08b")
 
             totalFaults = len(faults)
-            totalDetected = [0, 0, 0, 0, 0]
+            totalDetected = [0, 0]
 
             csvFile = open("f_cvg.csv", "w")
 
             writer = csv.writer(csvFile)
-            writer.writerow(["Batch #", "A", "B", "C", "D", "E", "seed = " + seedVal, "batch size = " + str(batchSize)])
+            writer.writerow(["Batch #", "E", "MarsenneTwisterPRTG", "batch size = " + str(batchSize)])
 
             # Runs the simulator for each line of the input file
             for batch in range(25):
                 print("Batch: " + str(batch + 1) + "...", end="")
-                for fileIndex in range(5):
+                for fileIndex in range(2):
                     for _ in range(batchSize):
 
                         # reads the newline
@@ -670,9 +675,7 @@ def main():
                                 circuit[key][2] = False
                                 circuit[key][3] = 'U'
 
-                writer.writerow([batch + 1, totalDetected[0] / totalFaults * 100, totalDetected[1] / totalFaults * 100,
-                                 totalDetected[2] / totalFaults * 100, totalDetected[3] / totalFaults * 100,
-                                 totalDetected[4] / totalFaults * 100])
+                writer.writerow([batch + 1, totalDetected[0] / totalFaults * 100, totalDetected[1] / totalFaults * 100])
                 print("done")
 
             for x in inputFiles:
@@ -745,23 +748,42 @@ def main():
             fault = genFaultList.getFaultList(circuit_bench)
 
             # Szymon
-            print("input a test vector (integer): \n")
-            # function to validate input accounting for neg numbers/output binary string
+            intVal = 0
+            while True:
+                print("\nUse 0 as your test vector? Otherwise, select a different integer value ")
+                userInput = input()
+                if userInput =="":
+                    print("\nYour integer for your test vector is: ", intVal)
+                    break
+                elif(not userInput.isnumeric()):
+                    print("\nYour input value is not an integer")
+                else: 
+                    intVal = int(userInput)
+                    print("\nYour integer for your test vector is: ", intVal)
+                    break
+            print(testVectorGen(circuit_bench, intVal)) #this will need to be passed to the simulator
+           
 
             # jas
             num_cycles = 5
             while True:
-                cycleInput = input("input number of cycles you want to simulate (integer):")
+                print("\nUse 5 for cycle simulation? Or, please input an integer value for the number of cycles you want to simulate: ")
+                cycleInput = input()
                 if cycleInput == "":
-                    print("will simulate for n =" + num_cycles + "\n")
+                    print("\nWill simulate for n = " + str(num_cycles) + "\n")
                     break
-                elif int(cycleInput) <= 0:
-                    print("Your input value is not an integer/less than 0")
+                elif (not cycleInput.isdigit()):
+                    print("\nYour input value is not an integer or it's less than 0")
+                elif (int(cycleInput) <= 0 ):
+                    print("\nYour input value should be greater than 0")
                 else:
-                    print("your input: " + cycleInput + " is not an integer please try again\n")
+                    print("\nYour input is: ", cycleInput)
+                    num_cycles = int(cycleInput)
+                    break
 
             #  function to simulate clock and incorporate into DFFs for basic_sim already given
             # print file
+            
             output_file(circuit_bench, num_cycles)
 
 
