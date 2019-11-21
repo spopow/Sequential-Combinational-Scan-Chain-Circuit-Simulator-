@@ -449,6 +449,8 @@ def main():
                 print("\nChoice not valid. Please enter a valid choice.\n")
 
     circuit = netRead("circ.bench")
+    print(circuit)
+    printCkt(circuit)
 
     # keep an initial (unassigned any value) copy of the circuit for an easy reset
     newCircuit = circuit
@@ -733,7 +735,6 @@ def main():
             # take file name and generate fault list for bench file ; output to terminal as list of numbers
             fault = genFaultList.getFaultList(circuit_bench)
 
-            # Szymon
             intVal = 0
             while True:
                 print("\nUse 0 as your test vector? Otherwise, select a different integer value ")
@@ -748,9 +749,7 @@ def main():
                     print("\nYour integer for your test vector is: ", intVal)
                     break
             print(testVectorGen(circuit_bench, intVal)) #this will need to be passed to the simulator
-           
 
-            # jas
             num_cycles = 5
             while True:
                 print("\nUse 5 for cycle simulation? Or, please input an integer value for the number of cycles you want to simulate: ")
