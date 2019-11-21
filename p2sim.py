@@ -73,6 +73,7 @@ def netRead(netName):
     inputs = []     # array of the input wires
     outputs = []    # array of the output wires
     gates = []      # array of the gate list
+
     inputBits = 0   # the number of inputs needed in this given circuit
 
 
@@ -101,7 +102,7 @@ def netRead(netName):
         # z=LOGIC(a,b,c,...)
 
         # Read a INPUT wire and add to circuit:
-        if (line[0:5] == "INPUT"):
+        if line[0:5] == "INPUT":
             # Removing everything but the line variable name
             line = line.replace("INPUT", "")
             line = line.replace("(", "")
@@ -139,8 +140,8 @@ def netRead(netName):
             outputs.append("wire_" + line)
             continue
 
-        # Read a gate output wire, and add to the circuit dictionary
-        lineSpliced = line.split("=") # splicing the line at the equals sign to get the gate output wire
+        # Read a gate/dff output wire, and add to the circuit dictionary
+        lineSpliced = line.split("=")  # splicing the line at the equals sign to get the gate output wire
         gateOut = "wire_" + lineSpliced[0]
 
         # Error detection: line being made already exists
@@ -149,12 +150,14 @@ def netRead(netName):
             print(msg+"\n")
             return msg
 
-        # Appending the dest name to the gate list
+        # Appending the dest name to the gate list/dff list
         gates.append(gateOut)
+        #dffs.append(dff_out)
 
-        lineSpliced = lineSpliced[1].split("(") # splicing the line again at the "("  to get the gate logic
+        lineSpliced = lineSpliced[1].split("(")  # splicing the line again at the "("  to get the gate logic
         logic = lineSpliced[0].upper()
-
+        if logic == "DFF":
+            clk_in=0;
 
         lineSpliced[1] = lineSpliced[1].replace(")", "")
         terms = lineSpliced[1].split(",")  # Splicing the the line again at each comma to the get the gate terminals
@@ -162,7 +165,12 @@ def netRead(netName):
         terms = ["wire_" + x for x in terms]
 
         # add the gate output wire to the circuit dictionary with the dest as the key
-        circuit[gateOut] = [logic, terms, False, 'U']
+        if logic == "DFF":
+            circuit[gateOut] = [logic, terms, False, 'U', clk_in]
+        else:
+            circuit[gateOut] = [logic, terms, False, 'U', clk_in]
+            # adding clk is redundant but just so we can test for that var when accessing for dff's/will not update? JEM
+
         #print(gateOut)
         #print(circuit[gateOut])
 
@@ -180,6 +188,7 @@ def netRead(netName):
     #print(circuit["INPUTS"])
     #print(circuit["OUTPUTS"])
     #print(circuit["GATES"])
+    #print(circuits["DFFS"])
 
 
     return circuit
@@ -191,6 +200,19 @@ def gateCalc(circuit, node):
     
     # terminal will contain all the input wires of this logic gate (node)
     terminals = list(circuit[node][1])  
+
+    # If the node is a DFF gate, solve and return the output
+    if circuit[node][0] == "DFF":
+        # if input to DFF=0
+        if circuit[terminals[0]][3] == '0':
+            circuit[node][3] = '0'
+        elif circuit[terminals[0]][3] == '1':
+            circuit[node][3] = '1'
+        elif circuit[terminals[0]][3] == "U":
+            circuit[node][3] = "U"
+        else:  # Should not be able to come here
+            return -1
+        return circuit
 
     # If the node is an Buffer gate output, solve and return the output
     if circuit[node][0] == "BUFF":
@@ -449,7 +471,8 @@ def main():
                 print("\nChoice not valid. Please enter a valid choice.\n")
 
     circuit = netRead("circ.bench")
-
+    print(circuit)
+    printCkt(circuit)
     # keep an initial (unassigned any value) copy of the circuit for an easy reset
     newCircuit = circuit
 
@@ -490,15 +513,7 @@ def main():
             print("ouptut files: TV_E.txt, MarsenneTwisterPRTG.txt")
 
             print("\nProcessing...\n")
-            # print("TV_A...", end=""),
-            # TestVector_A(circuit["INPUT_WIDTH"][1], seedVal)
-            # print("done\nTV_B...", end=""),
-            # TestVector_B(circuit["INPUT_WIDTH"][1], seedVal)
-            
-            # print("done\nTV_D...", end=""),
-            # TestVector_D(circuit["INPUT_WIDTH"][1], seedVal)
-            # print("done\nTV_C...", end=""),
-            # TestVector_C(circuit["INPUT_WIDTH"][1], seedVal)
+
             print("done\nTV_E...", end=""),
             TestVector_E(circuit["INPUT_WIDTH"][1], seedVal)
             print("done\nMarsenneTwisterPRTG...", end=""),
@@ -532,20 +547,8 @@ def main():
             # **************************************************************************************************************** #
 
             inputFiles = []
-            # inputFiles.append(open("TV_A.txt", "r"))
-            # inputFiles.append(open("TV_B.txt", "r"))
-            # inputFiles.append(open("TV_C.txt", "r"))
-            # inputFiles.append(open("TV_D.txt", "r"))
             inputFiles.append(open("TV_E.txt", "r"))
             inputFiles.append(open("MarsenneTwisterPRTG.txt", "r"))
-
-            # get seed value and moves the file cursor to the second line
-            # seedVal = ""
-            # for x in inputFiles:
-            #     seedVal = x.readline()
-
-            # seedVal = seedVal.replace("#seed: ", "")
-            # seedVal = format(int(seedVal), "08b")
 
             totalFaults = len(faults)
             totalDetected = [0, 0]
@@ -720,19 +723,13 @@ def main():
                 implement = 0
 
         if (userThirdChoice == 2):  # sequential circuit simulation
-            # input t,n,f
-            # t = test vector taken as str-made into binary
-            # n = cycles ran
-            # f = fault
-            # output : content of all ff's, primary outputs for good circuit and a fault
             print("Sequential Circuit Simulation\n")
             print("----------------------------------------------------\n")
-
             # alexis
             circuit_bench = input("Input a circuit benchmark: ")
             # take file name and generate fault list for bench file ; output to terminal as list of numbers
             fault = genFaultList.getFaultList(circuit_bench)
-
+            print("fault chosen for simulation: " + fault + "\n")
             # Szymon
             intVal = 0
             while True:
@@ -770,7 +767,7 @@ def main():
             #  function to simulate clock and incorporate into DFFs for basic_sim already given
             # print file
             
-            output_file(circuit_bench, num_cycles)
+            output_file(circuit_bench, num_cycles, fault)
 
 
 if __name__ == "__main__":
