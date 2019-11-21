@@ -1,4 +1,5 @@
 from __future__ import print_function
+import json
 import copy
 import os
 import subprocess
@@ -156,8 +157,9 @@ def netRead(netName):
 
         lineSpliced = lineSpliced[1].split("(")  # splicing the line again at the "("  to get the gate logic
         logic = lineSpliced[0].upper()
+        clk_in = 0
         if logic == "DFF":
-            clk_in=0;
+            clk_in=0
 
         lineSpliced[1] = lineSpliced[1].replace(")", "")
         terms = lineSpliced[1].split(",")  # Splicing the the line again at each comma to the get the gate terminals
@@ -471,8 +473,18 @@ def main():
                 print("\nChoice not valid. Please enter a valid choice.\n")
 
     circuit = netRead("circ.bench")
-    print(circuit)
-    printCkt(circuit)
+
+    # print(circuit["INPUT_WIDTH"])
+    # print(circuit["INPUTS"])
+    # print(circuit["OUTPUTS"])
+    print(circuit['wire_G5'][1])
+    
+    #print(circuit["DFF"])
+    file1 = open("myfile.txt","w")#write mode 
+    file1.write(json.dumps(circuit, indent=4, sort_keys=True)) 
+    file1.close() 
+    
+    # printCkt(circuit)
     # keep an initial (unassigned any value) copy of the circuit for an easy reset
     newCircuit = circuit
 
