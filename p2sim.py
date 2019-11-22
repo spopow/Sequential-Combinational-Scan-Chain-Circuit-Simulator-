@@ -6,6 +6,7 @@ import csv
 import genFaultList
 from TVgen import TestVector_A, TestVector_B, TestVector_C, TestVector_D, TestVector_E, MarsenneTwisterPRTG
 from circuit_sim_result import output_file
+
 from testVectorUI import inputSizeFinder, twoComptoBinary, testVectorGen
 
 # Function List:csv
@@ -135,7 +136,6 @@ def netRead(netName):
             line = line.replace("OUTPUT", "")
             line = line.replace("(", "")
             line = line.replace(")", "")
-
             # Appending to the output array
             outputs.append("wire_" + line)
             continue
@@ -156,8 +156,8 @@ def netRead(netName):
 
         lineSpliced = lineSpliced[1].split("(")  # splicing the line again at the "("  to get the gate logic
         logic = lineSpliced[0].upper()
-        if logic == "DFF":
-            clk_in=0;
+       # if logic == "DFF":
+            # clk_in=0;
 
         lineSpliced[1] = lineSpliced[1].replace(")", "")
         terms = lineSpliced[1].split(",")  # Splicing the the line again at each comma to the get the gate terminals
@@ -166,9 +166,9 @@ def netRead(netName):
 
         # add the gate output wire to the circuit dictionary with the dest as the key
         if logic == "DFF":
-            circuit[gateOut] = [logic, terms, False, 'U', clk_in]
+            circuit[gateOut] = [logic, terms, False, 'U'] # if we need clk in we add here
         else:
-            circuit[gateOut] = [logic, terms, False, 'U', clk_in]
+            circuit[gateOut] = [logic, terms, False, 'U']
             # adding clk is redundant but just so we can test for that var when accessing for dff's/will not update? JEM
 
         #print(gateOut)
@@ -390,6 +390,7 @@ def inputRead(circuit, line):
         i -= 1 # continuing the increments
 
     return circuit
+
 
 # -------------------------------------------------------------------------------------------------------------------- #
 # FUNCTION: the actual simulation #
