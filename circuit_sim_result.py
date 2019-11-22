@@ -5,11 +5,11 @@ from testVectorUI import testVectorGen
 # output : content of all ff's, primary outputs for good circuit and a fault
 
 
-def output_file(bench_file, num_cycles, fault):
+def output_file(bench_file, num_cycles, fault, user_tv_str):
     from p2sim import netRead
     simulatorTxt = open("simulator.txt", "w+")
     circuit = netRead(bench_file)  # create original circuit
-    good_circuit = getBasicSim(circuit, num_cycles)  # to create circuit with fault and update values - JAS - TO-DO
+    good_circuit = getBasicSim(circuit, num_cycles, user_tv_str)  # to create circuit with fault and update values - JAS - TO-DO
     simulatorTxt.write("******************GOOD CIRCUIT SIM********************\n")
     simulatorTxt.write("Flip Flop & Primary Outputs @ n= " + str(num_cycles) + "\n")
     simulatorTxt.write("*****************************************************\n")
@@ -54,9 +54,10 @@ def getNumPrimaryOutputs(bench_file):
     return num_inputs_here[1]
 
 
-def getBasicSim(circuit, total_cycles):
-    from p2sim import basic_sim
+def getBasicSim(circuit, total_cycles, user_tv_str):
+    from p2sim import basic_sim, inputRead
     print("inside getBasicSim\n")
+    circuit = inputRead(circuit, user_tv_str)
     cycle = 0
     while cycle < total_cycles:
         basic_sim(circuit)

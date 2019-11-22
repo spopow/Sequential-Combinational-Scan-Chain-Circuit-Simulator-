@@ -745,7 +745,7 @@ def main():
                     intVal = int(userInput)
                     print("\nYour integer for your test vector is: ", intVal)
                     break
-            print(testVectorGen(circuit_bench, intVal)) #this will need to be passed to the simulator
+            user_tv_str = testVectorGen(circuit_bench, intVal) #this will need to be passed to the simulator
            
 
             # jas
@@ -768,7 +768,7 @@ def main():
             #  function to simulate clock and incorporate into DFFs for basic_sim already given
             # print file
             
-            output_file(circuit_bench, num_cycles, fault)
+            output_file(circuit_bench, num_cycles, fault, user_tv_str)
 
 
 if __name__ == "__main__":
