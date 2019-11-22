@@ -401,31 +401,40 @@ def basic_sim(circuit):
     # Creating a queue, using a list, containing all of the gates in the circuit
     queue = list(circuit["GATES"][1])
     i = 1
-
     while True:
         i -= 1
         # If there's no more things in queue, done
+        print("The length of the queue is", len(queue))
         if len(queue) == 0:
             break
 
         # Remove the first element of the queue and assign it to a variable for us to use
         curr = queue[0]
+        print("the curr value is ", curr)
         queue.remove(curr)
+        print("the queue, after removing, is now: ", queue)
+        print("The length of the queue after removing is", len(queue))
+
 
         # initialize a flag, used to check if every terminal has been accessed
         term_has_value = True
         
         # Check if the terminals have been accessed
         for term in circuit[curr][1]:
+            # print("Its broken in this for loop 421 ", circuit[curr][1])
+            print("the term is", term)
+            print("circuit[term[2]]", circuit[term][2])
             if not circuit[term][2]:
                 term_has_value = False
                 break
 
         if term_has_value:
-            
+            print("Stuck in term_has_value")
             #checks to make sure the gate output has not already been set
             if(circuit[curr][2] == False):
+                print("stuck before gate calc")
                 circuit = gateCalc(circuit, curr)
+                print("stuck after gate calc")
 
             circuit[curr][2] = True
 
@@ -749,13 +758,15 @@ def main():
                 if userInput =="":
                     print("\nYour integer for your test vector is: ", intVal)
                     break
+                #FIXME
                 elif(not userInput.isnumeric()):
                     print("\nYour input value is not an integer")
                 else: 
                     intVal = int(userInput)
                     print("\nYour integer for your test vector is: ", intVal)
                     break
-            print(testVectorGen(circuit_bench, intVal)) #this will need to be passed to the simulator
+            
+            user_tv_str = testVectorGen(circuit_bench, intVal) #this will need to be passed to the simulator
 
             num_cycles = 5
             while True:
