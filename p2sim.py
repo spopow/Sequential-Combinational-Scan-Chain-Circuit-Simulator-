@@ -214,6 +214,7 @@ def gateCalc(circuit, node):
             circuit[node][3] = "U"
         else:  # Should not be able to come here
             return -1
+
         return circuit
 
     # If the node is an Buffer gate output, solve and return the output
@@ -226,6 +227,7 @@ def gateCalc(circuit, node):
             circuit[node][3] = "U"
         else:  # Should not be able to come here
             return -1
+       
         return circuit
 
     # If the node is an Inverter gate output, solve and return the output
@@ -238,6 +240,7 @@ def gateCalc(circuit, node):
             circuit[node][3] = "U"
         else:  # Should not be able to come here
             return -1
+        
         return circuit
 
     # If the node is an AND gate output, solve and return the output
@@ -314,12 +317,15 @@ def gateCalc(circuit, node):
         for term in terminals:
             if circuit[term][3] == '1':
                 circuit[node][3] = '0'
+                print("setting output to 0 in an NOR gate")
                 break
             if circuit[term][3] == "U":
                 unknownTerm = True
         if unknownTerm:
             if circuit[node][3] == '1':
                 circuit[node][3] = "U"
+                print("setting output to U in an NOR gate")
+        print("done modeling circuit")
         return circuit
 
     # If the node is an XOR gate output, solve and return the output
@@ -357,9 +363,9 @@ def gateCalc(circuit, node):
 
         # check how many 1's we counted
         if count % 2 == 1:  # if more than one 1, we know it's going to be 0.
-            circuit[node][3] = '1'
-        else:  # Otherwise, the output is equal to how many 1's there are
             circuit[node][3] = '0'
+        else:  # Otherwise, the output is equal to how many 1's there are
+            circuit[node][3] = '1'
         return circuit
 
     # Error detection... should not be able to get at this point
