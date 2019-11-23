@@ -408,18 +408,19 @@ def basic_sim(circuit):
     queue = list(circuit["GATES"][1])
     i = 1
     while True:
+        print("stuck in most outer loop")
         i -= 1
         # If there's no more things in queue, done
-        print("The length of the queue is", len(queue))
+        # print("The length of the queue is", len(queue))
         if len(queue) == 0:
             break
 
         # Remove the first element of the queue and assign it to a variable for us to use
         curr = queue[0]
-        print("the curr value is ", curr)
+        # print("the curr value is ", curr)
         queue.remove(curr)
-        print("the queue, after removing, is now: ", queue)
-        print("The length of the queue after removing is", len(queue))
+        # print("the queue, after removing, is now: ", queue)
+        # print("The length of the queue after removing is", len(queue))
 
 
         # initialize a flag, used to check if every terminal has been accessed
@@ -428,17 +429,18 @@ def basic_sim(circuit):
         # Check if the terminals have been accessed
         for term in circuit[curr][1]:
             # print("Its broken in this for loop 421 ", circuit[curr][1])
-            print("the term is", term)
-            print("circuit[term[2]]", circuit[term][2])
-            if not circuit[term][2]:
+            # print("the term is", term)
+            # print("circuit[term[2]]", circuit[term][2])
+            if not circuit[term][2]: #checks is gate is set to false (never produced a value)
                 term_has_value = False
+                print("term has value is false")
                 break
 
         if term_has_value:
-            print("Stuck in term_has_value")
+            # print("Stuck in term_has_value")
             #checks to make sure the gate output has not already been set
             if(circuit[curr][2] == False):
-                print("stuck before gate calc")
+                # print("stuck before gate calc")
                 circuit = gateCalc(circuit, curr)
                 print("stuck after gate calc")
 
@@ -446,7 +448,7 @@ def basic_sim(circuit):
 
             # ERROR Detection if LOGIC does not exist
             if isinstance(circuit, str):
-                print(circuit)
+                # print(circuit)
                 return circuit
 
         else:
@@ -496,9 +498,7 @@ def main():
     print(circuit['wire_G5'][1])
     
     #print(circuit["DFF"])
-    file1 = open("myfile.txt","w")#write mode 
-    file1.write(json.dumps(circuit, indent=4, sort_keys=True)) 
-    file1.close() 
+   
     
     # printCkt(circuit)
     # keep an initial (unassigned any value) copy of the circuit for an easy reset
@@ -794,6 +794,9 @@ def main():
             # print file
             
             output_file(circuit_bench, num_cycles, fault, user_tv_str)
+            file1 = open("myfile.txt","w")#write mode 
+            file1.write(json.dumps(circuit, indent=4, sort_keys=True)) 
+            file1.close() 
 
 
 if __name__ == "__main__":
