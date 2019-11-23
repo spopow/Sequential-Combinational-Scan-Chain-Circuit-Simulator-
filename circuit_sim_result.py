@@ -1,6 +1,7 @@
 import math
 import copy
 from testVectorUI import testVectorGen
+import json
 # input t,n,f
 # t = test vector, n = cycles ran,f = fault
 # output : content of all ff's, primary outputs for good circuit and a fault
@@ -57,13 +58,18 @@ def getNumPrimaryOutputs(bench_file):
 
 def getBasicSim(circuit, total_cycles, user_tv_str):
     from p2sim import basic_sim, inputRead
-    print("inside getBasicSim\n")
     circuit = inputRead(circuit, user_tv_str)
     cycle = 0
     while cycle < total_cycles:
-        basic_sim(circuit)
-        reset_Gate_T_F(circuit)  # function to reset all False to true for each gate that is not a DFF
+        print('Its stuck before basic sim')
+        circuit = basic_sim(circuit) 
+        circuit = reset_Gate_T_F(circuit)  # function to reset all False to true for each gate that is not a DFF
+        print("gates being reset to false")
         cycle = cycle + 1
+        
+    file1 = open("myfile.txt","w")#write mode 
+    file1.write(json.dumps(circuit, indent=4, sort_keys=True)) 
+    file1.close() 
     return circuit
 
 
