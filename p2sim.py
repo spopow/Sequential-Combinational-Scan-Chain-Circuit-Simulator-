@@ -171,8 +171,8 @@ def netRead(netName):
             circuit[gateOut] = [logic, terms, False, 'U']
             # adding clk is redundant but just so we can test for that var when accessing for dff's/will not update? JEM
 
-        #print(gateOut)
-        #print(circuit[gateOut])
+        # print(gateOut)
+        # print(circuit[gateOut])
 
     # now after each wire is built into the circuit dictionary,
     # add a few more non-wire items: input width, input array, output array, gate list
@@ -183,13 +183,12 @@ def netRead(netName):
     circuit["OUTPUTS"] = ["Output list", outputs]
     circuit["GATES"] = ["Gate list", gates]
 
-    #print("\n bookkeeping items in circuit: \n")
-    #print(circuit["INPUT_WIDTH"])
-    #print(circuit["INPUTS"])
-    #print(circuit["OUTPUTS"])
-    #print(circuit["GATES"])
-    #print(circuits["DFFS"])
-
+    # print("\n bookkeeping items in circuit: \n")
+    # print(circuit["INPUT_WIDTH"])
+    # print(circuit["INPUTS"])
+    # print(circuit["OUTPUTS"])
+    # print(circuit["GATES"])
+    # print(circuits["DFFS"])
 
     return circuit
 

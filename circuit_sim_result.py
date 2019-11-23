@@ -1,4 +1,5 @@
 import math
+import copy
 from testVectorUI import testVectorGen
 # input t,n,f
 # t = test vector, n = cycles ran,f = fault
@@ -85,11 +86,109 @@ def printPOValues(circuit, numPrimOutputs):
 
 
 def getFaultCvgSeq(circuit, fault, total_cycles):
+    from p2sim import basic_sim, inputRead
     print("inside getFaultCvgSeq\n")
+    # keep an initial (unassigned any value) copy of the circuit for an easy reset
+    newCircuit = circuit
     # incorporate fault
     cycle = 0
     while cycle < total_cycles:
         # line 566-666 down make TV a line
+        line = fault
+        output = ""
+
+        # Do nothing else if empty lines, ...
+        if (line == "\n"):
+            continue
+        # ... or any comments
+        if (line[0] == "#"):
+            continue
+
+        # Removing the the newlines at the end
+        line = line.replace("\n", "")
+
+        # Removing spaces
+        line = line.replace(" ", "")
+
+        circuit = inputRead(circuit, line)
+
+        if circuit == -1:
+            print("INPUT ERROR: INSUFFICIENT BITS")
+            # After each input line is finished, reset the netList
+            circuit = newCircuit
+            print("...move on to next input\n")
+            continue
+        elif circuit == -2:
+            print("INPUT ERROR: INVALID INPUT VALUE/S")
+            # After each input line is finished, reset the netList
+            circuit = newCircuit
+            print("...move on to next input\n")
+            continue
+
+        circuit = basic_sim(circuit)
+
+        for y in circuit["OUTPUTS"][1]:
+            if not circuit[y][2]:
+                output = "NETLIST ERROR: OUTPUT LINE \"" + y + "\" NOT ACCESSED"
+                break
+            output = str(circuit[y][3]) + output
+
+        for faultLine in faults:
+            # skips fault if already detected
+            if (faultLine[fileIndex] == True):
+                continue
+
+            # creates a copy of the circuit to be used for fault testing
+            faultCircuit = copy.deepcopy(circuit)
+
+            for key in faultCircuit:
+                if (key[0:5] == "wire_"):
+                    faultCircuit[key][2] = False
+                    faultCircuit[key][3] = 'U'
+
+            # sets up the inputs for the fault circuit
+            faultCircuit = inputRead(faultCircuit, line)
+
+            # handles stuck at faults
+            if (faultLine[5][1] == "SA"):
+                for key in faultCircuit:
+                    if (faultLine[5][0] == key[5:]):
+                        faultCircuit[key][2] = True
+                        faultCircuit[key][3] = faultLine[5][2]
+
+            # handles in in stuck at faults by making a new "wire"
+            elif (faultLine[5][1] == "IN"):
+                faultCircuit["faultWire"] = ["FAULT", "NONE", True, faultLine[5][4]]
+
+                # finds the input that needs to be changed to the fault line
+                for key in faultCircuit:
+                    if (faultLine[5][0] == key[5:]):
+                        inputIndex = 0
+                        for gateInput in faultCircuit[key][1]:
+                            if (faultLine[5][2] == gateInput[5:]):
+                                faultCircuit[key][1][inputIndex] = "faultWire"
+
+                            inputIndex += 1
+
+            # runs Circuit Simulation
+            faultCircuit = basic_sim(faultCircuit)
+            reset_Gate_T_F(faultCircuit)  # function to reset all False to true for each gate that is not a DFF
+            # gets the output
+            faultOutput = ""
+            for y in faultCircuit["OUTPUTS"][1]:
+                if not faultCircuit[y][2]:
+                    faultOutput = "NETLIST ERROR: OUTPUT LINE \"" + y + "\" NOT ACCESSED"
+                    break
+                faultOutput = str(faultCircuit[y][3]) + faultOutput
+
+            # checks to see if the fault was detected
+            if (output != faultOutput):
+                faultLine[fileIndex] = True
+
+        for key in circuit:
+            if (key[0:5] == "wire_"):
+                circuit[key][2] = False
+                circuit[key][3] = 'U'
         cycle = cycle + 1
     return circuit
 
