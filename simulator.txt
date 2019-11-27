@@ -1,5 +1,7 @@
 ******************GOOD CIRCUIT SIM********************
-Flip Flop & Primary Outputs @ n= 5
+Flip Flop & Primary Outputs @ n= 3
 *****************************************************
-D-Type Flip Flops:3
+D-Type Flip Flops:2
+-----------------------------
+Primary Outputs:1
 -----------------------------

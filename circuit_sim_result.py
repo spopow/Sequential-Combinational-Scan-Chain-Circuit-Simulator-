@@ -52,7 +52,7 @@ def getNumPrimaryOutputs(bench_file):
     # get line: "1 outputs"
     for line in benchFile:
         if "outputs" in line:
-            num_inputs_here = str.split(" ")
+            num_inputs_here = line.split(" ")
     return num_inputs_here[1]
 
 
@@ -62,12 +62,12 @@ def getBasicSim(circuit, total_cycles, user_tv_str):
     cycle = 0
     while cycle < total_cycles:
         print('Its stuck before basic sim')
-        circuit = basic_sim(circuit) 
+        circuit = basic_sim(circuit)
+        print("\n\n******ran for: " + str(cycle+1) + " cycles ********* \n\n")
         circuit = reset_Gate_T_F(circuit)  # function to reset all False to true for each gate that is not a DFF
         print("gates being reset to false")
         cycle = cycle + 1
-        
-    file1 = open("myfile.txt","w")#write mode 
+    file1 = open("myfile.txt", "w")  # write mode
     file1.write(json.dumps(circuit, indent=4, sort_keys=True)) 
     file1.close() 
     return circuit
