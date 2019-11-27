@@ -11,29 +11,25 @@ def output_file(bench_file, num_cycles, fault, user_tv_str):
     from p2sim import netRead, printCkt
     simulatorTxt = open("simulator.txt", "w+")
     circuit = netRead(bench_file)  # create original circuit
-    good_circuit = getBasicSim(circuit, num_cycles,
-                               user_tv_str)  # to create circuit with fault and update values - JAS - TO-DO
+    good_circuit = getBasicSim(circuit, num_cycles, user_tv_str)  # to create circuit with fault and update values
     simulatorTxt.write("******************GOOD CIRCUIT SIM********************\n")
-    simulatorTxt.write("Flip Flop & Primary Outputs @ n= " + str(num_cycles) + "\n")
+    simulatorTxt.write("Flip Flop & Primary Outputs @ n = " + str(num_cycles) + "\n")
     simulatorTxt.write("******************************************************\n")
     numFlipFlops = getNumFF(bench_file)
-    simulatorTxt.write("D-Type Flip Flops:" + numFlipFlops + "\n")
-    simulatorTxt.write("-----------------------------\n")
+    simulatorTxt.write("D-Type Flip Flops: " + numFlipFlops + "\n")
     printFFvalues(good_circuit, simulatorTxt)  # call function that prints ff/value - ALEXIS TO-DO
     numPrimOutputs = getNumPrimaryOutputs(bench_file)
-    simulatorTxt.write("Primary Outputs:" + str(numPrimOutputs) + "\n")
-    simulatorTxt.write("-----------------------------\n")
-    printPOValues(good_circuit, numPrimOutputs)  # call function that prints primary output value - SZYMON TO-DO
-    # badCircuit = getFaultCvgSeq(circuit, fault, num_cycles)  # to create circuit with fault and update values - JAS TD
-    simulatorTxt.write("******************BAD CIRCUIT SIM********************\n")
+    simulatorTxt.write("\nPrimary Outputs: " + str(numPrimOutputs) + "\n")
+    printPOValues(good_circuit, numPrimOutputs, simulatorTxt)  # call function that prints PO value - SZYMON TO-DO
+    # badCircuit = getFaultCvgSeq(circuit, fault, num_cycles)  # make circuit with fault and update values - JAS TD
+    simulatorTxt.write("\n******************BAD CIRCUIT SIM********************\n")
     simulatorTxt.write("Fault: " + str(fault) + "\n")
-    simulatorTxt.write("Flip Flop & Primary Outputs @ n= " + str(num_cycles) + "\n")
+    simulatorTxt.write("Flip Flop & Primary Outputs @ n = " + str(num_cycles) + "\n")
     simulatorTxt.write("*****************************************************\n")
-    simulatorTxt.write("D-Type Flip Flops:" + numFlipFlops + "\n")
-    simulatorTxt.write("-----------------------------\n")
+    simulatorTxt.write("D-Type Flip Flops: " + numFlipFlops + "\n")
     # call function that prints ff/value
     printFFvalues(circuit, simulatorTxt)
-    simulatorTxt.write("Primary Outputs:" + str(numPrimOutputs) + "\n")
+    simulatorTxt.write("\nPrimary Outputs: " + str(numPrimOutputs) + "\n")
     simulatorTxt.write("-----------------------------\n")
     # function that prints output value
 
@@ -48,14 +44,15 @@ def getNumFF(bench_file):
 
 
 def getNumPrimaryOutputs(bench_file):
+    numOutputs = 0
     print("getting Num primary inputs\n")
     print("reading bench file\n")
     benchFile = open(bench_file, "r")
     # get line: "1 outputs"
     for line in benchFile:
         if "outputs" in line:
-            num_inputs_here = line.split(" ")
-    return num_inputs_here[1]
+            numOutputs = numOutputs + 1
+    return numOutputs
 
 
 def getBasicSim(circuit, total_cycles, user_tv_str):
@@ -78,22 +75,23 @@ def getBasicSim(circuit, total_cycles, user_tv_str):
 def printFFvalues(circuit, file):
     flipFlopNum = 0
     print("inside printFF values function\n")
-    file.write('\n**********************DFF VALUES**********************\n')
+    file.write('**********************DFF VALUES**********************')
     for gate in circuit:
         if circuit[gate][0] == 'DFF':
             dFlipFlop = '\n DFF_' + str(flipFlopNum) + ": " + str(circuit[gate][3]) + " "
             flipFlopNum = flipFlopNum + 1
             file.write(dFlipFlop)
+    file.write('\n******************************************************')
 
 
-def printPOValues(circuit, numPrimOutputs):
+def printPOValues(circuit, numPrimOutputs, simulatorTxt):
     print("inside printPO values function\n")
-    simulatorTxt = open("simulator.txt", "a")
     i = 0
+    simulatorTxt.write('*****************Primary Output Values*****************')
     while i < numPrimOutputs:
         simulatorTxt.write(" ")
         i = i + 1
-
+    simulatorTxt.write('\n******************************************************')
 
 def getFaultCvgSeq(circuit, fault, total_cycles):
     from p2sim import basic_sim, inputRead
