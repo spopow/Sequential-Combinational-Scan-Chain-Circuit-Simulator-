@@ -403,6 +403,13 @@ def inputRead(circuit, line):
             return -2
         i -= 1 # continuing the increments
 
+    for gate in circuit:
+        # When you find a DFF, move the testvector bit in its place
+        if circuit[gate][0] == 'DFF':
+            circuit[gate][2] = True
+
+    printCkt(circuit)
+
     return circuit
 
 
@@ -440,7 +447,9 @@ def basic_sim(circuit):
         for term in circuit[curr][1]:
             print("The term is: ", term)
             print("Term is set to true/false :", circuit[term][2])
-            if circuit[term][3] == '1' or circuit[term][3] == '0' : #checks is gate is set to false (never produced a value)
+            # checks is gate is set to false (never produced a value)
+            # if circuit[term][3] == '1' or circuit[term][3] == '0':
+            if circuit[term][2]:
                 print("Thus, term_has_value is set to :", term_has_value)
                 break
             else:
@@ -467,7 +476,8 @@ def basic_sim(circuit):
             printCkt(circuit)
             queue.append(curr)
 
-        
+    printCkt(circuit)
+
     return circuit
     
 
