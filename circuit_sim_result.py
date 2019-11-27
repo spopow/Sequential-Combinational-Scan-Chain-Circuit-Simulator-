@@ -18,7 +18,7 @@ def output_file(bench_file, num_cycles, fault, user_tv_str):
     numFlipFlops = getNumFF(bench_file)
     simulatorTxt.write("D-Type Flip Flops:" + numFlipFlops + "\n")
     simulatorTxt.write("-----------------------------\n")
-    printFFvalues(good_circuit, numFlipFlops)  # call function that prints ff/value - ALEXIS TO-DO
+    printFFvalues(good_circuit)  # call function that prints ff/value - ALEXIS TO-DO
     numPrimOutputs = getNumPrimaryOutputs(bench_file)
     simulatorTxt.write("Primary Outputs:" + str(numPrimOutputs) + "\n")
     simulatorTxt.write("-----------------------------\n")
@@ -73,13 +73,14 @@ def getBasicSim(circuit, total_cycles, user_tv_str):
     return circuit
 
 
-def printFFvalues(circuit, numFlipFlops):
+def printFFvalues(circuit):
+    flipFlopNum = 0
     print("inside printFF values function\n")
     simulatorTxt = open("simulator.txt", "a")
-    i = 0
-    while i < numFlipFlops:
-        simulatorTxt.write(" ")
-        i = i+1
+    for gate in circuit:
+        if circuit[gate][0] == 'DFF':
+            dFlipFlop = 'DFF_' + str(flipFlopNum) + ": " + str(circuit[gate][3])
+            simulatorTxt.write(dFlipFlop)
 
 
 def printPOValues(circuit, numPrimOutputs):

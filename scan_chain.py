@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
 from math import ceil
-from __future__ import print_function
+
 from p2sim import netRead, printCkt
 
 
@@ -79,5 +79,5 @@ if __name__ == "__main__":
     testVector = [1, 0, 1]
     circuit = netRead(fileName)
     printCkt(circuit)
-    circuit = scanChain(circuit, 'full', testVector)
-    printCkt(circuit)
+    circuit = scanChain(circuit, 'partial', testVector)
+    print(circuit[1])

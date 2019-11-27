@@ -213,7 +213,7 @@ def gateCalc(circuit, node):
             circuit[node][3] = "U"
         else:  # Should not be able to come here
             return -1
-
+        print("done modeling DFF")
         return circuit
 
     # If the node is an Buffer gate output, solve and return the output
@@ -226,7 +226,7 @@ def gateCalc(circuit, node):
             circuit[node][3] = "U"
         else:  # Should not be able to come here
             return -1
-       
+        print("done modeling BUFF")
         return circuit
 
     # If the node is an Inverter gate output, solve and return the output
@@ -239,7 +239,7 @@ def gateCalc(circuit, node):
             circuit[node][3] = "U"
         else:  # Should not be able to come here
             return -1
-        
+        print("done modeling NOT")
         return circuit
 
     # If the node is an AND gate output, solve and return the output
@@ -261,6 +261,7 @@ def gateCalc(circuit, node):
         if unknownTerm:
             if circuit[node][3] == '1':
                 circuit[node][3] = "U"
+        print("done modeling AND")
         return circuit
 
     # If the node is a NAND gate output, solve and return the output
@@ -283,6 +284,7 @@ def gateCalc(circuit, node):
         if unknownTerm:
             if circuit[node][3] == '0':
                 circuit[node][3] = "U"
+        print("done modeling NAND")
         return circuit
 
     # If the node is an OR gate output, solve and return the output
@@ -303,6 +305,7 @@ def gateCalc(circuit, node):
         if unknownTerm:
             if circuit[node][3] == '0':
                 circuit[node][3] = "U"
+        print("done modeling OR")
         return circuit
 
     # If the node is an NOR gate output, solve and return the output
@@ -324,7 +327,7 @@ def gateCalc(circuit, node):
             if circuit[node][3] == '1':
                 circuit[node][3] = "U"
                 print("setting output to U in an NOR gate")
-        print("done modeling circuit")
+        print("done modeling NOR")
         return circuit
 
     # If the node is an XOR gate output, solve and return the output
@@ -338,6 +341,7 @@ def gateCalc(circuit, node):
                 count += 1  # For each 1 bit, add one count
             if circuit[term][3] == "U":
                 circuit[node][3] = "U"
+                print("done modeling XOR")
                 return circuit
 
         # check how many 1's we counted
@@ -345,6 +349,7 @@ def gateCalc(circuit, node):
             circuit[node][3] = '1'
         else:  # Otherwise, the output is equal to how many 1's there are
             circuit[node][3] = '0'
+        print("done modeling XOR")
         return circuit
 
     # If the node is an XNOR gate output, solve and return the output
@@ -358,6 +363,7 @@ def gateCalc(circuit, node):
                 count += 1  # For each 1 bit, add one count
             if circuit[term][3] == "U":
                 circuit[node][3] = "U"
+                print("done modeling XNOR")
                 return circuit
 
         # check how many 1's we counted
@@ -365,6 +371,7 @@ def gateCalc(circuit, node):
             circuit[node][3] = '0'
         else:  # Otherwise, the output is equal to how many 1's there are
             circuit[node][3] = '1'
+        print("done modeling XNOR")
         return circuit
 
     # Error detection... should not be able to get at this point
@@ -396,6 +403,13 @@ def inputRead(circuit, line):
             return -2
         i -= 1 # continuing the increments
 
+    for gate in circuit:
+        # When you find a DFF, move the testvector bit in its place
+        if circuit[gate][0] == 'DFF':
+            circuit[gate][2] = True
+
+    printCkt(circuit)
+
     return circuit
 
 
@@ -407,54 +421,65 @@ def basic_sim(circuit):
     queue = list(circuit["GATES"][1])
     i = 1
     while True:
-        print("stuck in most outer loop")
+        print("While loop start")
         i -= 1
         # If there's no more things in queue, done
         # print("The length of the queue is", len(queue))
+        print("The length of the queue is :", len(queue))
         if len(queue) == 0:
+            print("Existing queue")
             break
 
         # Remove the first element of the queue and assign it to a variable for us to use
         curr = queue[0]
-        # print("the curr value is ", curr)
+        print("Curr is: ", curr)
         queue.remove(curr)
-        # print("the queue, after removing, is now: ", queue)
-        # print("The length of the queue after removing is", len(queue))
-
+        print("Removed Curr")
+        print("The queue is now: ", queue)
+        print("Length of queue is now: ", len(queue))
 
         # initialize a flag, used to check if every terminal has been accessed
         term_has_value = True
-        
+        print("term_has_value: ", term_has_value)
         # Check if the terminals have been accessed
-        for term in circuit[curr][1]:
-            # print("Its broken in this for loop 421 ", circuit[curr][1])
-            # print("the term is", term)
-            # print("circuit[term[2]]", circuit[term][2])
-            if not circuit[term][2]: #checks is gate is set to false (never produced a value)
-                term_has_value = False
-                print("term has value is false")
-                break
 
-        if term_has_value:
-            # print("Stuck in term_has_value")
+        print("The circuit[curr][1] is :", circuit[curr][1])
+        for term in circuit[curr][1]:
+            print("The term is: ", term)
+            print("Term is set to true/false :", circuit[term][2])
+            # checks is gate is set to false (never produced a value)
+            # if circuit[term][3] == '1' or circuit[term][3] == '0':
+            if circuit[term][2]:
+                print("Thus, term_has_value is set to :", term_has_value)
+                break
+            else:
+                term_has_value = False
+                
+        if term_has_value: #if both input terminals have been set
+            print("Thus, term_has_value is set to :", term_has_value)
             #checks to make sure the gate output has not already been set
             if(circuit[curr][2] == False):
-                # print("stuck before gate calc")
+                print("Curr is set to", circuit[curr][2], "So it will proceed to gateCalc")
                 circuit = gateCalc(circuit, curr)
-                print("stuck after gate calc")
+                print("Gatecalc has returned a circuit")
 
             circuit[curr][2] = True
 
             # ERROR Detection if LOGIC does not exist
             if isinstance(circuit, str):
-                # print(circuit)
+                print(circuit)
                 return circuit
 
         else:
             # If the terminals have not been accessed yet, append the current node at the end of the queue
+            print("curr is appended back")
+            printCkt(circuit)
             queue.append(curr)
 
+    printCkt(circuit)
+
     return circuit
+    
 
 
 def plot():
@@ -493,8 +518,7 @@ def main():
 
     # print(circuit["INPUT_WIDTH"])
     # print(circuit["INPUTS"])
-    # print(circuit["OUTPUTS"])
-    print(circuit['wire_G5'][1])
+    # print(circuit["OUTPUTS"]
     
     #print(circuit["DFF"])
    
@@ -793,9 +817,7 @@ def main():
             # print file
             
             output_file(circuit_bench, num_cycles, fault, user_tv_str)
-            file1 = open("myfile.txt","w")#write mode 
-            file1.write(json.dumps(circuit, indent=4, sort_keys=True)) 
-            file1.close() 
+             
 
 
 if __name__ == "__main__":
