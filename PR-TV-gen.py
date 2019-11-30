@@ -229,18 +229,26 @@ def MarsenneTwisterPRTG(inputSize):
 
 # Pass in circuit benchmark
 def LFSRtestGen(circuit, numCycles):
-    listTV = []
+    listPI = []
+    listDFF = []
     outVect = ''
-    #vector Size is the num PI + num DFF
-    vctrSize = inputSizeFinder(circuit) + _DFFnumFinder(circuit)
+    #vector Size is the num PI and the num DFF
+    
+    vectPI = inputSizeFinder(circuit)
+    vectDFF = _DFFnumFinder(circuit)
 
     #for how many test cycles, we create that many randomly generated test vectors
     for x in range(numCycles):
-        outVect = random.randint(0, 2**(vctrSize -1))
-        outVect = format(outVect, '0'+str(vctrSize)+'b')
-        listTV.append(outVect)
-  
-    return listTV
+        outVect = random.randint(0, 2**(vectPI - 1))
+        outVect = format(outVect, '0'+str(vectPI)+'b')
+        listPI.append(outVect)
+    for x in range(numCycles):
+        outVect = random.randint(0, 2**(vectDFF - 1))
+        outVect = format(outVect, '0'+str(vectDFF)+'b')
+        listDFF.append(outVect)
+
+    #returning a tuple
+    return listPI, listDFF
 
 def _DFFnumFinder(circuit):
 
@@ -297,7 +305,9 @@ def main():
     # TestVector_D(inputSize, seedVal)
     # TestVector_C(inputSize, seedVal)
     # MarsenneTwisterPRTG(inputSize)
-    LFSRtestGen(cktFile, 5)
+    print(LFSRtestGen(cktFile, 5)[0])
+    print(LFSRtestGen(cktFile, 5)[1])
+
 
 
 if __name__ == "__main__":
