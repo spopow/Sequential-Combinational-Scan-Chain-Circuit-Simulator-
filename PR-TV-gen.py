@@ -226,7 +226,32 @@ def MarsenneTwisterPRTG(inputSize):
         outVect = random.randint(0, 2**(inputSize -1))
         outVect = format(outVect, '0'+str(inputSize)+'b')
         outputFile.write(outVect + '\n')
-            
+
+# Pass in circuit benchmark
+def LFSRtestGen(circuit, numCycles):
+    listTV = []
+    outVect = ''
+    #vector Size is the num PI + num DFF
+    vctrSize = inputSizeFinder(circuit) + _DFFnumFinder(circuit)
+
+    #for how many test cycles, we create that many randomly generated test vectors
+    for x in range(numCycles):
+        outVect = random.randint(0, 2**(vctrSize -1))
+        outVect = format(outVect, '0'+str(vctrSize)+'b')
+        listTV.append(outVect)
+  
+    return listTV
+
+def _DFFnumFinder(circuit):
+
+    f = open(circuit,'r')
+    DFFctr = 0
+    for line in f:
+        if line.find("DFF") > 0:
+            DFFctr += 1
+            continue
+
+    return DFFctr
 #input bench file
 def main():
     script_dir = os.path.dirname(__file__)  # <-- absolute dir the script is in
@@ -266,13 +291,13 @@ def main():
 
     inputSize = inputSizeFinder(cktFile)
 
-    TestVector_A(inputSize, seedVal)
-    TestVector_B(inputSize, seedVal)
-    TestVector_E(inputSize, seedVal)
-    TestVector_D(inputSize, seedVal)
-    TestVector_C(inputSize, seedVal)
-    MarsenneTwisterPRTG(inputSize)
-    
+    # TestVector_A(inputSize, seedVal)
+    # TestVector_B(inputSize, seedVal)
+    # TestVector_E(inputSize, seedVal)
+    # TestVector_D(inputSize, seedVal)
+    # TestVector_C(inputSize, seedVal)
+    # MarsenneTwisterPRTG(inputSize)
+    LFSRtestGen(cktFile, 5)
 
 
 if __name__ == "__main__":
