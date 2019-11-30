@@ -414,9 +414,6 @@ def inputRead(circuit, line):
 def basic_sim(circuit):
     # QUEUE and DEQUEUE
     # Creating a queue, using a list, containing all of the gates in the circuit
-    simulatorTxt = open("simulator.txt", "w")
-    printPOValues(circuit, simulatorTxt)
-    simulatorTxt.close()
     queue = list(circuit["GATES"][1])
     i = 1
     while True:

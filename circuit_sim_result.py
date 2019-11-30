@@ -21,7 +21,7 @@ def output_file(bench_file, num_cycles, fault, user_tv_str):
     printFFvalues(good_circuit, simulatorTxt)  # call function that prints ff/value - ALEXIS TO-DO
     numPrimOutputs = getNumPrimaryOutputs(bench_file)
     simulatorTxt.write("\nPrimary Outputs: " + str(numPrimOutputs) + "\n")
-    printPOValues(good_circuit, numPrimOutputs, simulatorTxt)  # call function that prints PO value - SZYMON TO-DO
+    printPOValues(good_circuit, simulatorTxt)  # call function that prints PO value - SZYMON TO-DO
     # badCircuit = getFaultCvgSeq(circuit, fault, num_cycles)  # make circuit with fault and update values - JAS TD
     simulatorTxt.write("\n******************BAD CIRCUIT SIM********************\n")
     simulatorTxt.write("Fault: " + str(fault) + "\n")
@@ -46,8 +46,8 @@ def getNumFF(bench_file):
 
 def getNumPrimaryOutputs(bench_file):
     numOutputs = 0
-    print("getting Num primary inputs\n")
-    print("reading bench file\n")
+    #print("getting Num primary inputs\n")
+    #print("reading bench file\n")
     benchFile = open(bench_file, "r")
     # get line: "1 outputs"
     for line in benchFile:
@@ -66,6 +66,7 @@ def getBasicSim(circuit, total_cycles, user_tv_str):
         circuit = reset_Gate_T_F(circuit)  # function to reset all False to true for each gate that is not a DFF
         print("gates being reset to false")
         cycle = cycle + 1
+        print("running cycle: " + str(cycle) + "\n")
 
     return circuit
 
@@ -94,7 +95,7 @@ def printPOValues(circuit, simulatorTxt):
         simulatorTxt.write(circuit[output][3])
         simulatorTxt.write('\n')
     simulatorTxt.write('\n******************************************************')
-    simulatorTxt.close()
+
 
 
 
@@ -207,12 +208,12 @@ def getFaultCvgSeq(circuit, fault, total_cycles):
 
 
 def reset_Gate_T_F(circuit):
-    print("stuck at resetting gates\n")
+    #print("stuck at resetting gates\n")
     from p2sim import printCkt
     for curr in circuit:
-        # print("Curr is:" + str(circuit[curr]))
+        print("Curr is:" + str(circuit[curr]))
         currLen = len(circuit[curr])
-        if currLen == 4:
+        if currLen == 4 and circuit[curr][0] != 'DFF' and circuit[curr][0] != 'INPUT':
             circuit[curr][2] = False
             # print("Curr is now: " + str(circuit[curr]) + "\n")
     return circuit

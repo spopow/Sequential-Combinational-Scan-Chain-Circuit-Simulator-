@@ -1,0 +1,14 @@
+
+Choose what type of circuit you will be working with (1 or 2): 
+1: Combinational Circuit Case Study
+2: Sequential Circuit
+
+Choose what you would like to do (1 or 2): 
+
+1: Scan Chain Study
+2: Sequential Circuit Simulation
+Sequential Circuit Simulation
+
+----------------------------------------------------
+
+Input a circuit benchmark: 
