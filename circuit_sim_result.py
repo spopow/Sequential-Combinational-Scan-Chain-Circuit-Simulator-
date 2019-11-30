@@ -11,25 +11,29 @@ def output_file(bench_file, num_cycles, fault, user_tv_str):
     from p2sim import netRead, printCkt
     simulatorTxt = open("simulator.txt", "w+")
     circuit = netRead(bench_file)  # create original circuit
-    good_circuit = getBasicSim(circuit, num_cycles, user_tv_str)  # to create circuit with fault and update values
+    good_circuit = circuit   # just to test fault cvg shit
+    Fault = False
+    good_circuit = getBasicSim(circuit, num_cycles, user_tv_str, Fault)  # to create circuit with fault and update values
     printCkt(good_circuit)
     simulatorTxt.write("******************GOOD CIRCUIT SIM********************\n")
     simulatorTxt.write("Flip Flop & Primary Outputs @ n = " + str(num_cycles) + "\n")
     simulatorTxt.write("******************************************************\n")
     numFlipFlops = getNumFF(bench_file)
     simulatorTxt.write("D-Type Flip Flops: " + numFlipFlops + "\n")
-    printFFvalues(good_circuit, simulatorTxt)  # call function that prints ff/value - ALEXIS TO-DO
+    printFFvalues(good_circuit, simulatorTxt)  # call function that prints ff/value
     numPrimOutputs = getNumPrimaryOutputs(bench_file)
     simulatorTxt.write("\nPrimary Outputs: " + str(numPrimOutputs) + "\n")
     printPOValues(good_circuit, numPrimOutputs, simulatorTxt)  # call function that prints PO value - SZYMON TO-DO
-    # badCircuit = getFaultCvgSeq(circuit, fault, num_cycles)  # make circuit with fault and update values - JAS TD
+    Fault = True
+    badCircuit = getBasicSim(circuit, num_cycles, user_tv_str, Fault)
+    #badCircuit = getFaultCvgSeq(circuit, fault, num_cycles)  # make circuit with fault and update values
     simulatorTxt.write("\n******************BAD CIRCUIT SIM********************\n")
     simulatorTxt.write("Fault: " + str(fault) + "\n")
     simulatorTxt.write("Flip Flop & Primary Outputs @ n = " + str(num_cycles) + "\n")
     simulatorTxt.write("*****************************************************\n")
     simulatorTxt.write("D-Type Flip Flops: " + numFlipFlops + "\n")
     # call function that prints ff/value
-    printFFvalues(circuit, simulatorTxt)
+    printFFvalues(badCircuit, simulatorTxt)
     simulatorTxt.write("\nPrimary Outputs: " + str(numPrimOutputs) + "\n")
     simulatorTxt.write("-----------------------------\n")
     # function that prints output value
@@ -37,9 +41,9 @@ def output_file(bench_file, num_cycles, fault, user_tv_str):
 
 def getNumFF(bench_file):
     benchFile = open(bench_file, "r")
-    # get line: "# 3 D-type flipflops "
+    # get line: "# 3 D-type flip flops
     for line in benchFile:
-        if "D-type flipflops" in line:
+        if "D-type flip flops" in line:
             num_ff_here = line.split(" ")
     return num_ff_here[1]
 
@@ -56,14 +60,14 @@ def getNumPrimaryOutputs(bench_file):
     return numOutputs
 
 
-def getBasicSim(circuit, total_cycles, user_tv_str):
+def getBasicSim(circuit, total_cycles, user_tv_str, Fault):
     print("stuck at get basic sim\n")
     from p2sim import basic_sim, inputRead
-    circuit = inputRead(circuit, user_tv_str)
+    circuit = inputRead(circuit, user_tv_str, Fault)  # fault to true/value TODO
     cycle = 0
     while cycle < total_cycles:
-        circuit = basic_sim(circuit)
-        circuit = reset_Gate_T_F(circuit)  # function to reset all False to true for each gate that is not a DFF
+        circuit = basic_sim(circuit, Fault)  # TODO
+        circuit = reset_Gate_T_F(circuit, Fault)  # TODO-reset all False to true for each gate that is not a DFF
         print("gates being reset to false")
         cycle = cycle + 1
         print("running cycle: " + str(cycle) + "\n")
@@ -214,3 +218,13 @@ def reset_Gate_T_F(circuit):
             circuit[curr][2] = False
             # print("Curr is now: " + str(circuit[curr]) + "\n")
     return circuit
+
+
+def fault_processing(fault):
+    line = fault
+    line = line.replace("\n", "")
+    data = []
+    for _ in range(5):
+        data.append(False)
+    data.append(line.split("-"))
+
