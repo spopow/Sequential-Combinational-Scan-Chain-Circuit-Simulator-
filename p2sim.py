@@ -805,6 +805,7 @@ def main():
             #  function to simulate clock and incorporate into DFFs for basic_sim already given
             # print file
 
+            
             scan_output_file(circuit_bench, num_cycles, fault, user_tv_str, scanType)
 
         if userThirdChoice == 2:  # sequential circuit simulation

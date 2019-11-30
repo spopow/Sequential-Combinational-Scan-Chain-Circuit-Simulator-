@@ -83,9 +83,11 @@ def getBasicSim(circuit, testApplyCycles, totalCycles, elTestVector, scanType):
 
     while cycle < testApplyCycles:
         # Update scan chain with incoming testvectors
+        # this one gets the DFFs
         circuit, totalCycles = scanChain(circuit, scanType, elTestVector, totalCycles)
 
         # Update input values
+        #this one gets the PO Values
         circuit = inputRead(circuit, elTestVector)
 
         circuit = basic_sim(circuit)
