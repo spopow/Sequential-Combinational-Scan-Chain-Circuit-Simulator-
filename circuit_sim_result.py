@@ -23,7 +23,7 @@ def output_file(bench_file, num_cycles, fault, user_tv_str):
     printFFvalues(good_circuit, simulatorTxt)  # call function that prints ff/value
     numPrimOutputs = getNumPrimaryOutputs(bench_file)
     simulatorTxt.write("\nPrimary Outputs: " + str(numPrimOutputs) + "\n")
-    printPOValues(good_circuit, numPrimOutputs, simulatorTxt)  # call function that prints PO value - SZYMON TO-DO
+    printPOValues(good_circuit, simulatorTxt)  # call function that prints PO value - SZYMON TO-DO
     Fault = True
     badCircuit = getBasicSim(circuit, num_cycles, user_tv_str, Fault)
     #badCircuit = getFaultCvgSeq(circuit, fault, num_cycles)  # make circuit with fault and update values
@@ -72,9 +72,6 @@ def getBasicSim(circuit, total_cycles, user_tv_str, Fault):
         cycle = cycle + 1
         print("running cycle: " + str(cycle) + "\n")
 
-    file1 = open("myfile.txt", "w")  # write mode
-    file1.write(json.dumps(circuit, indent=4, sort_keys=True))
-    file1.close()
     return circuit
 
 
@@ -89,15 +86,21 @@ def printFFvalues(circuit, file):
     file.write('\n******************************************************')
 
 
-def printPOValues(circuit, numPrimOutputs, simulatorTxt):
-    print("inside printPO values function\n")
-    i = 0
+def printPOValues(circuit, simulatorTxt):
+    outputList = circuit["OUTPUTS"][1]
     # get prim outputs from circuit
     # go through prim values
     # print values
     simulatorTxt.write('*****************Primary Output Values*****************')
-    simulatorTxt.write(" ")
+    for output in outputList:
+        simulatorTxt.write("\n" )
+        simulatorTxt.write(output)
+        simulatorTxt.write("\n" )
+        simulatorTxt.write(circuit[output][3])
+        simulatorTxt.write('\n')
     simulatorTxt.write('\n******************************************************')
+
+
 
 
 def getFaultCvgSeq(circuit, fault, total_cycles):
