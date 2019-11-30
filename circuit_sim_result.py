@@ -67,9 +67,6 @@ def getBasicSim(circuit, total_cycles, user_tv_str):
         print("gates being reset to false")
         cycle = cycle + 1
 
-    file1 = open("myfile.txt", "w")  # write mode
-    file1.write(json.dumps(circuit, indent=4, sort_keys=True))
-    file1.close()
     return circuit
 
 
@@ -84,15 +81,21 @@ def printFFvalues(circuit, file):
     file.write('\n******************************************************')
 
 
-def printPOValues(circuit, numPrimOutputs, simulatorTxt):
-    print("inside printPO values function\n")
-    i = 0
+def printPOValues(circuit, simulatorTxt):
+    outputList = circuit["OUTPUTS"][1]
     # get prim outputs from circuit
     # go through prim values
     # print values
     simulatorTxt.write('*****************Primary Output Values*****************')
-    simulatorTxt.write(" ")
+    for output in outputList:
+        simulatorTxt.write("\n" )
+        simulatorTxt.write(output)
+        simulatorTxt.write("\n" )
+        simulatorTxt.write(circuit[output][3])
+        simulatorTxt.write('\n')
     simulatorTxt.write('\n******************************************************')
+    simulatorTxt.close()
+
 
 
 def getFaultCvgSeq(circuit, fault, total_cycles):

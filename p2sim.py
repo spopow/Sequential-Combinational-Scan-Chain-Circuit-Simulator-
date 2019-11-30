@@ -6,7 +6,7 @@ import subprocess
 import csv
 import genFaultList
 from TVgen import TestVector_A, TestVector_B, TestVector_C, TestVector_D, TestVector_E, MarsenneTwisterPRTG
-from circuit_sim_result import output_file
+from circuit_sim_result import output_file, printPOValues
 
 from testVectorUI import inputSizeFinder, twoComptoBinary, testVectorGen
 
@@ -381,7 +381,6 @@ def inputRead(circuit, line):
     # Checking if input bits are enough for the circuit
     if len(line) < circuit["INPUT_WIDTH"][1]:
         return -1
-
     # Getting the proper number of bits:
     line = line[(len(line) - circuit["INPUT_WIDTH"][1]):(len(line))]
 
@@ -415,6 +414,9 @@ def inputRead(circuit, line):
 def basic_sim(circuit):
     # QUEUE and DEQUEUE
     # Creating a queue, using a list, containing all of the gates in the circuit
+    simulatorTxt = open("simulator.txt", "w")
+    printPOValues(circuit, simulatorTxt)
+    simulatorTxt.close()
     queue = list(circuit["GATES"][1])
     i = 1
     while True:
@@ -471,10 +473,11 @@ def basic_sim(circuit):
         else:
             # If the terminals have not been accessed yet, append the current node at the end of the queue
             print("curr is appended back")
-            printCkt(circuit) 
+            #printCkt(circuit) 
+            
+            
             queue.append(curr)
 
-    printCkt(circuit)
 
     return circuit
 
@@ -522,6 +525,8 @@ def main():
     # printCkt(circuit)
     # keep an initial (unassigned any value) copy of the circuit for an easy reset
     newCircuit = circuit
+    
+    
 
     if (userChoice == 1):
         while True:
