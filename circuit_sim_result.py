@@ -12,6 +12,7 @@ def output_file(bench_file, num_cycles, fault, user_tv_str):
     simulatorTxt = open("simulator.txt", "w+")
     circuit = netRead(bench_file)  # create original circuit
     good_circuit = getBasicSim(circuit, num_cycles, user_tv_str)  # to create circuit with fault and update values
+    printCkt(good_circuit)
     simulatorTxt.write("******************GOOD CIRCUIT SIM********************\n")
     simulatorTxt.write("Flip Flop & Primary Outputs @ n = " + str(num_cycles) + "\n")
     simulatorTxt.write("******************************************************\n")
@@ -56,11 +57,11 @@ def getNumPrimaryOutputs(bench_file):
 
 
 def getBasicSim(circuit, total_cycles, user_tv_str):
+    print("stuck at get basic sim\n")
     from p2sim import basic_sim, inputRead
     circuit = inputRead(circuit, user_tv_str)
     cycle = 0
     while cycle < total_cycles:
-        print('Its stuck before basic sim')
         circuit = basic_sim(circuit)
         circuit = reset_Gate_T_F(circuit)  # function to reset all False to true for each gate that is not a DFF
         print("gates being reset to false")
@@ -74,7 +75,6 @@ def getBasicSim(circuit, total_cycles, user_tv_str):
 
 def printFFvalues(circuit, file):
     flipFlopNum = 0
-    print("inside printFF values function\n")
     file.write('**********************DFF VALUES**********************')
     for gate in circuit:
         if circuit[gate][0] == 'DFF':
@@ -87,11 +87,13 @@ def printFFvalues(circuit, file):
 def printPOValues(circuit, numPrimOutputs, simulatorTxt):
     print("inside printPO values function\n")
     i = 0
+    # get prim outputs from circuit
+    # go through prim values
+    # print values
     simulatorTxt.write('*****************Primary Output Values*****************')
-    while i < numPrimOutputs:
-        simulatorTxt.write(" ")
-        i = i + 1
+    simulatorTxt.write(" ")
     simulatorTxt.write('\n******************************************************')
+
 
 def getFaultCvgSeq(circuit, fault, total_cycles):
     from p2sim import basic_sim, inputRead
@@ -190,7 +192,7 @@ def getFaultCvgSeq(circuit, fault, total_cycles):
                 faultOutput = str(faultCircuit[y][3]) + faultOutput
 
             # checks to see if the fault was detected
-            if (output != faultOutput):
+            if output != faultOutput:
                 faultLine[fileIndex] = True
 
         for key in circuit:
@@ -202,31 +204,12 @@ def getFaultCvgSeq(circuit, fault, total_cycles):
 
 
 def reset_Gate_T_F(circuit):
-    queue = list(circuit["GATES"][1])
-    i = 1
-    while True:
-        i -= 1
-        # If there's no more things in queue, done
-        if len(queue) == 0:
-            break
-
-        # Remove the first gate element of the queue and assign it to a variable for us to use
-        curr = queue[0]
-        queue.remove(curr)
-
-        # initialize a flag, used to check if every terminal has been accessed
-        term_has_value = True
-
-        # Check if the terminals have been accessed
-        for term in circuit[curr][1]:
-            if not circuit[term][2]:
-                term_has_value = False
-                break
-
-        if term_has_value:
-
-            # checks to make sure the gate output has not already been set
-            if circuit[curr][2] is False:
-                circuit[curr][2] = True
-
+    print("stuck at resetting gates\n")
+    from p2sim import printCkt
+    for curr in circuit:
+        # print("Curr is:" + str(circuit[curr]))
+        currLen = len(circuit[curr])
+        if currLen == 4:
+            circuit[curr][2] = False
+            # print("Curr is now: " + str(circuit[curr]) + "\n")
     return circuit
