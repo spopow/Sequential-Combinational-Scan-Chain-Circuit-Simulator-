@@ -89,11 +89,9 @@ def printPOValues(circuit, simulatorTxt):
     # print values
     simulatorTxt.write('*****************Primary Output Values*****************')
     for output in outputList:
-        simulatorTxt.write("\n" )
-        simulatorTxt.write(output)
-        simulatorTxt.write("\n" )
-        simulatorTxt.write(circuit[output][3])
-        simulatorTxt.write('\n')
+
+        poVal = "\n" + output + ": " + circuit[output][3]
+        simulatorTxt.write(poVal)
     simulatorTxt.write('\n******************************************************')
 
 
