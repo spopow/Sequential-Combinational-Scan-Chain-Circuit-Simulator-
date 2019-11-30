@@ -19,6 +19,7 @@ from testVectorUI import inputSizeFinder, twoComptoBinary, testVectorGen
 # 5. basic_sim: the actual simulation
 # 6. main: The main function
 
+
 # gets all of the faults from the file
 def getFaults(faultFile):
     # opens the file
