@@ -68,7 +68,7 @@ def getBasicSim(circuit, total_cycles, user_tv_str):
         cycle = cycle + 1
         
     file1 = open("myfile.txt","w")#write mode 
-    file1.write(json.dumps(circuit, indent=4, sort_keys=True)) 
+    file1.write(json.dumps(circuit, indent=4, sort_keys=False)) 
     file1.close() 
     return circuit
 

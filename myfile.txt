@@ -39,14 +39,14 @@
     "wire_G0": [
         "INPUT",
         "wire_G0",
-        false,
-        "U"
+        true,
+        "1"
     ],
     "wire_G1": [
         "INPUT",
         "wire_G1",
-        false,
-        "U"
+        true,
+        "0"
     ],
     "wire_G10": [
         "NOR",
@@ -54,7 +54,7 @@
             "wire_G14",
             "wire_G11"
         ],
-        false,
+        true,
         "U"
     ],
     "wire_G11": [
@@ -72,7 +72,7 @@
             "wire_G1",
             "wire_G7"
         ],
-        false,
+        true,
         "U"
     ],
     "wire_G13": [
@@ -81,7 +81,7 @@
             "wire_G2",
             "wire_G12"
         ],
-        false,
+        true,
         "U"
     ],
     "wire_G14": [
@@ -89,8 +89,8 @@
         [
             "wire_G0"
         ],
-        false,
-        "U"
+        true,
+        "0"
     ],
     "wire_G15": [
         "OR",
@@ -107,8 +107,8 @@
             "wire_G3",
             "wire_G8"
         ],
-        false,
-        "U"
+        true,
+        "0"
     ],
     "wire_G17": [
         "NOT",
@@ -121,14 +121,14 @@
     "wire_G2": [
         "INPUT",
         "wire_G2",
-        false,
-        "U"
+        true,
+        "0"
     ],
     "wire_G3": [
         "INPUT",
         "wire_G3",
-        false,
-        "U"
+        true,
+        "0"
     ],
     "wire_G5": [
         "DFF",
@@ -160,8 +160,8 @@
             "wire_G14",
             "wire_G6"
         ],
-        false,
-        "U"
+        true,
+        "0"
     ],
     "wire_G9": [
         "NAND",
@@ -169,7 +169,7 @@
             "wire_G16",
             "wire_G15"
         ],
-        false,
-        "U"
+        true,
+        "1"
     ]
 }

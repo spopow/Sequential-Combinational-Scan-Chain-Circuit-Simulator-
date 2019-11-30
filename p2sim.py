@@ -440,11 +440,10 @@ def basic_sim(circuit):
         for term in circuit[curr][1]:
             print("The term is: ", term)
             print("Term is set to true/false :", circuit[term][2])
-            if circuit[term][3] == '1' or circuit[term][3] == '0' : #checks is gate is set to false (never produced a value)
+            if not circuit[term][2] : #checks is gate is set to false (never produced a value)
                 print("Thus, term_has_value is set to :", term_has_value)
-                break
-            else:
                 term_has_value = False
+                break
                 
         if term_has_value: #if both input terminals have been set
             print("Thus, term_has_value is set to :", term_has_value)
@@ -464,7 +463,7 @@ def basic_sim(circuit):
         else:
             # If the terminals have not been accessed yet, append the current node at the end of the queue
             print("curr is appended back")
-            printCkt(circuit)
+            printCkt(circuit) 
             queue.append(curr)
 
         
@@ -807,6 +806,7 @@ def main():
             # print file
             
             output_file(circuit_bench, num_cycles, fault, user_tv_str)
+            
              
 
 
