@@ -29,13 +29,13 @@
     "wire_G0": [
         "INPUT",
         "wire_G0",
-        true,
-        "1"
+        false,
+        "0"
     ],
     "wire_G1": [
         "INPUT",
         "wire_G1",
-        true,
+        false,
         "0"
     ],
     "wire_G2": [
@@ -44,7 +44,7 @@
             "wire_G3",
             "wire_G4"
         ],
-        true,
+        false,
         "U"
     ],
     "wire_G3": [
@@ -53,23 +53,23 @@
             "wire_G0",
             "wire_G2"
         ],
-        true,
-        "U"
+        false,
+        "0"
     ],
     "wire_G4": [
         "DFF",
         [
             "wire_G3"
         ],
-        true,
-        "U"
+        false,
+        "0"
     ],
     "wire_G5": [
         "DFF",
         [
             "wire_G2"
         ],
-        true,
+        false,
         "U"
     ],
     "wire_G6": [
@@ -78,7 +78,7 @@
             "wire_G5",
             "wire_G1"
         ],
-        true,
+        false,
         "U"
     ]
 }
