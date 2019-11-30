@@ -19,14 +19,14 @@ from testVectorUI import inputSizeFinder, twoComptoBinary, testVectorGen
 # 5. basic_sim: the actual simulation
 # 6. main: The main function
 
-#gets all of the faults from the file
+# gets all of the faults from the file
 def getFaults(faultFile):
-    #opens the file
+    # opens the file
     inFile = open(faultFile, "r")
 
     faults = []
 
-    #goes line by line and adds the faults to arrays
+    # goes line by line and adds the faults to arrays
     for line in inFile:
         # Do nothing else if empty lines, ...
         if (line == "\n"):
@@ -34,7 +34,7 @@ def getFaults(faultFile):
         # ... or any comments
         if (line[0] == "#"):
             continue
-        
+
         line = line.replace("\n", "")
         data = []
         for _ in range(5):
@@ -47,7 +47,7 @@ def getFaults(faultFile):
 
 # -------------------------------------------------------------------------------------------------------------------- #
 # FUNCTION: Neatly prints the Circuit Dictionary:
-def printCkt (circuit):
+def printCkt(circuit):
     print("INPUT LIST:")
     for x in circuit["INPUTS"][1]:
         print(x + "= ", end='')
@@ -72,12 +72,11 @@ def netRead(netName):
     netFile = open(netName, "r")
 
     # temporary variables
-    inputs = []     # array of the input wires
-    outputs = []    # array of the output wires
-    gates = []      # array of the gate list
+    inputs = []  # array of the input wires
+    outputs = []  # array of the output wires
+    gates = []  # array of the gate list
 
-    inputBits = 0   # the number of inputs needed in this given circuit
-
+    inputBits = 0  # the number of inputs needed in this given circuit
 
     # main variable to hold the circuit netlist, this is a dictionary in Python, where:
     # key = wire name; value = a list of attributes of the wire
@@ -91,8 +90,8 @@ def netRead(netName):
             continue
 
         # Removing spaces and newlines
-        line = line.replace(" ","")
-        line = line.replace("\n","")
+        line = line.replace(" ", "")
+        line = line.replace("\n", "")
 
         # NOT Reading any comments
         if (line[0] == "#"):
@@ -126,8 +125,8 @@ def netRead(netName):
             circuit[line] = ["INPUT", line, False, 'U']
 
             inputBits += 1
-            #print(line)
-            #print(circuit[line])
+            # print(line)
+            # print(circuit[line])
             continue
 
         # Read an OUTPUT wire and add to the output array list
@@ -148,30 +147,28 @@ def netRead(netName):
         # Error detection: line being made already exists
         if gateOut in circuit:
             msg = "NETLIST ERROR: GATE OUTPUT LINE \"" + gateOut + "\" ALREADY EXISTS PREVIOUSLY IN NETLIST"
-            print(msg+"\n")
+            print(msg + "\n")
             return msg
 
         # Appending the dest name to the gate list/dff list
         gates.append(gateOut)
-        #dffs.append(dff_out)
 
         lineSpliced = lineSpliced[1].split("(")  # splicing the line again at the "("  to get the gate logic
         logic = lineSpliced[0].upper()
         clk_in = 0
         if logic == "DFF":
-            clk_in=0
+            clk_in = 0
 
         lineSpliced[1] = lineSpliced[1].replace(")", "")
         terms = lineSpliced[1].split(",")  # Splicing the the line again at each comma to the get the gate terminals
         # Turning each term into an integer before putting it into the circuit dictionary
         terms = ["wire_" + x for x in terms]
 
-        # add the gate output wire to the circuit dictionary with the dest as the key
+        # add the gate output wire to the circuit dictionary with the destination as the key
         if logic == "DFF":
-            circuit[gateOut] = [logic, terms, False, 'U'] # if we need clk in we add here
+            circuit[gateOut] = [logic, terms, False, 'U']
         else:
             circuit[gateOut] = [logic, terms, False, 'U']
-            # adding clk is redundant but just so we can test for that var when accessing for dff's/will not update? JEM
 
         # print(gateOut)
         # print(circuit[gateOut])
@@ -179,7 +176,7 @@ def netRead(netName):
     # now after each wire is built into the circuit dictionary,
     # add a few more non-wire items: input width, input array, output array, gate list
     # for convenience
-    
+
     circuit["INPUT_WIDTH"] = ["input width:", inputBits]
     circuit["INPUTS"] = ["Input list", inputs]
     circuit["OUTPUTS"] = ["Output list", outputs]
@@ -198,9 +195,9 @@ def netRead(netName):
 # -------------------------------------------------------------------------------------------------------------------- #
 # FUNCTION: calculates the output value for each logic gate
 def gateCalc(circuit, node):
-    
+    print("stuck at gate calc\n")
     # terminal will contain all the input wires of this logic gate (node)
-    terminals = list(circuit[node][1])  
+    terminals = list(circuit[node][1])
 
     # If the node is a DFF gate, solve and return the output
     if circuit[node][0] == "DFF":
@@ -251,7 +248,7 @@ def gateCalc(circuit, node):
 
         # if there is a 0 at any input terminal, AND output is 0. If there is an unknown terminal, mark the flag
         # Otherwise, keep it at 1
-        for term in terminals:  
+        for term in terminals:
             if circuit[term][3] == '0':
                 circuit[node][3] = '0'
                 break
@@ -394,14 +391,21 @@ def inputRead(circuit, line):
     inputs = list(circuit["INPUTS"][1])
     # dictionary item: [(bool) If accessed, (int) the value of each line, (int) layer number, (str) origin of U value]
     for bitVal in line:
-        bitVal = bitVal.upper() # in the case user input lower-case u
-        circuit[inputs[i]][3] = bitVal # put the bit value as the line value
+        bitVal = bitVal.upper()  # in the case user input lower-case u
+        circuit[inputs[i]][3] = bitVal  # put the bit value as the line value
         circuit[inputs[i]][2] = True  # and make it so that this line is accessed
 
         # In case the input has an invalid character (i.e. not "0", "1" or "U"), return an error flag
         if bitVal != "0" and bitVal != "1" and bitVal != "U":
             return -2
-        i -= 1 # continuing the increments
+        i -= 1  # continuing the increments
+
+    for gate in circuit:
+        # When you find a DFF, move the testvector bit in its place
+        if circuit[gate][0] == 'DFF':
+            circuit[gate][2] = True
+
+    printCkt(circuit)
 
     return circuit
 
@@ -414,46 +418,50 @@ def basic_sim(circuit):
     queue = list(circuit["GATES"][1])
     i = 1
     while True:
-        print("While loop start")
+        # print("While loop start")
         i -= 1
         # If there's no more things in queue, done
-        # print("The length of the queue is", len(queue))
-        print("The length of the queue is :", len(queue))
         if len(queue) == 0:
             print("Existing queue")
             break
 
         # Remove the first element of the queue and assign it to a variable for us to use
-        curr = queue[0]
+        curr = queue[0]  # output of gate
         print("Curr is: ", curr)
         queue.remove(curr)
-        print("Removed Curr")
         print("The queue is now: ", queue)
-        print("Length of queue is now: ", len(queue))
 
         # initialize a flag, used to check if every terminal has been accessed
         term_has_value = True
-        print("term_has_value: ", term_has_value)
         # Check if the terminals have been accessed
 
         print("The circuit[curr][1] is :", circuit[curr][1])
-        for term in circuit[curr][1]:
-            print("The term is: ", term)
-            print("Term is set to true/false :", circuit[term][2])
-            if not circuit[term][2] : #checks is gate is set to false (never produced a value)
-                print("Thus, term_has_value is set to :", term_has_value)
-                term_has_value = False
+        for term in circuit[curr][1]:  # checking each input for gate
+            print("input wire is: ", term)
+            print("gate has been set? :", circuit[term][2])  # checking whether gate has been set or not
+            # checks if gate is set to false (never produced a value)
+            # if circuit[term][3] == '1' or circuit[term][3] == '0':
+            if circuit[term][2]:  # if gate has been set
+                print("gate has been set: ", term_has_value)
                 break
-                
-        if term_has_value: #if both input terminals have been set
-            print("Thus, term_has_value is set to :", term_has_value)
-            #checks to make sure the gate output has not already been set
-            if(circuit[curr][2] == False):
-                print("Curr is set to", circuit[curr][2], "So it will proceed to gateCalc")
-                circuit = gateCalc(circuit, curr)
-                print("Gatecalc has returned a circuit")
+            else:
+                # if gate output has not been set yet
+                term_has_value = False
 
-            circuit[curr][2] = True
+        if term_has_value:  # if input terminals have been set
+            print("Thus, term_has_value is set to :", term_has_value)
+            # checks to make sure the gate output has not already been set
+            if circuit[curr][2] == False:
+                print("Curr  is set to", circuit[curr][2], "So it will proceed to gateCalc")
+                circuit = gateCalc(circuit, curr)
+                print("Gate calc has finished:")
+                circuit[curr][2] = True
+                print("gate set to true \n")
+            elif circuit[curr][2] and circuit[curr][0] == "DFF":
+                print("Curr  is set to", circuit[curr][2], "but DFF, ie. will proceed to gateCalc")
+                circuit = gateCalc(circuit, curr)
+                print("Gate calc has finished:")
+            printCkt(circuit)
 
             # ERROR Detection if LOGIC does not exist
             if isinstance(circuit, str):
@@ -466,13 +474,13 @@ def basic_sim(circuit):
             printCkt(circuit) 
             queue.append(curr)
 
-        
+    printCkt(circuit)
+
     return circuit
-    
 
 
 def plot():
-    plotProcess = subprocess.Popen("gnuplot p2plot.gpl", shell = True)
+    plotProcess = subprocess.Popen("gnuplot p2plot.gpl", shell=True)
     os.waitpid(plotProcess.pid, 0)
 
 
@@ -489,9 +497,9 @@ def main():
     # gets user choice
     while True:
         userChoice = 0
-        print("\nChoose what type of circuit you will be working with (1 or 2): \n")
-        print("1: Combinational Circuit Case Study\n")
-        print("2: Sequential Circuit\n")
+        print("\nChoose what type of circuit you will be working with (1 or 2): ")
+        print("1: Combinational Circuit Case Study")
+        print("2: Sequential Circuit")
         userInput = input()
         if userInput == "":
             print("\nPlease Enter a value\n")
@@ -508,10 +516,9 @@ def main():
     # print(circuit["INPUT_WIDTH"])
     # print(circuit["INPUTS"])
     # print(circuit["OUTPUTS"]
-    
-    #print(circuit["DFF"])
-   
-    
+
+    # print(circuit["DFF"])
+
     # printCkt(circuit)
     # keep an initial (unassigned any value) copy of the circuit for an easy reset
     newCircuit = circuit
@@ -560,7 +567,7 @@ def main():
             MarsenneTwisterPRTG(circuit["INPUT_WIDTH"][1])
             print("done\n\nDone.")
 
-        elif (userSecondChoice == 2):
+        elif userSecondChoice == 2:
             # get batch size
             while True:
                 print("\nOption 2: Fault Coverage Simulation.")
@@ -584,7 +591,7 @@ def main():
 
             print("\nProcessing...\n")
             # Note: UI code;
-            # **************************************************************************************************************** #
+            # ******************************************************************************************************** #
 
             inputFiles = []
             inputFiles.append(open("TV_E.txt", "r"))
@@ -695,12 +702,12 @@ def main():
                                 faultOutput = str(faultCircuit[y][3]) + faultOutput
 
                             # checks to see if the fault was detected
-                            if (output != faultOutput):
+                            if output != faultOutput:
                                 faultLine[fileIndex] = True
                                 totalDetected[fileIndex] += 1
 
                         for key in circuit:
-                            if (key[0:5] == "wire_"):
+                            if key[0:5] == "wire_":
                                 circuit[key][2] = False
                                 circuit[key][3] = 'U'
 
@@ -719,26 +726,26 @@ def main():
         while True:
             userThirdChoice = 0
             print("\nChoose what you would like to do (1 or 2): \n")
-            print("1: Scan Chain Study\n")
-            print("2: Sequential Circuit Simulation\n")
+            print("1: Scan Chain Study")
+            print("2: Sequential Circuit Simulation")
             userInput = input()
             if userInput == "":
                 print("\nPlease Enter a value\n")
                 break
             else:
                 userThirdChoice = int(userInput)
-                if (userThirdChoice >= 1 & userThirdChoice <= 2):
+                if userThirdChoice >= 1 & userThirdChoice <= 2:
                     break
                 else:
                     print("\nChoice not valid. Please enter a valid choice.\n")
 
-        if (userThirdChoice == 1):  # scan chain study
+        if userThirdChoice == 1:  # scan chain study
             while True:
                 userFourthChoice = 0
-                print("\nChoose what you would like to do (1, 2, or 3): \n")
-                print("1: Partial Scan Chain\n")
-                print("2: Full Scan Chain\n")
-                print("3: Parallel Scan Chain\n")
+                print("\nChoose what you would like to do (1, 2, or 3): ")
+                print("1: Partial Scan Chain")
+                print("2: Full Scan Chain")
+                print("3: Parallel Scan Chain")
                 userInput = input()
                 if userInput == "":
                     print("\nPlease Enter a value\n")
@@ -750,19 +757,19 @@ def main():
                     else:
                         print("\nChoice not valid. Please enter a valid choice.\n")
 
-            if (userFourthChoice == 1):
+            if userFourthChoice == 1:
                 print("implementing: Partial Scan Chain\n")
                 implement = 0
 
-            if (userFourthChoice == 2):
+            if userFourthChoice == 2:
                 print("implementing: Full Scan Chain\n")
                 implement = 0
 
-            if (userFourthChoice == 3):
+            if userFourthChoice == 3:
                 print("implementing: Parallel Scan Chain\n")
                 implement = 0
 
-        if (userThirdChoice == 2):  # sequential circuit simulation
+        if userThirdChoice == 2:  # sequential circuit simulation
             print("Sequential Circuit Simulation\n")
             print("----------------------------------------------------\n")
             # alexis
@@ -773,29 +780,30 @@ def main():
             while True:
                 print("\nUse 0 as your test vector? Otherwise, select a different integer value ")
                 userInput = input()
-                if userInput =="":
+                if userInput == "":
                     print("\nYour integer for your test vector is: ", intVal)
                     break
-                #FIXME
-                elif(not userInput.isnumeric()):
+                # FIXME
+                elif not userInput.isnumeric():
                     print("\nYour input value is not an integer")
-                else: 
+                else:
                     intVal = int(userInput)
                     print("\nYour integer for your test vector is: ", intVal)
                     break
-            
-            user_tv_str = testVectorGen(circuit_bench, intVal) #this will need to be passed to the simulator
+
+            user_tv_str = testVectorGen(circuit_bench, intVal)  # this will need to be passed to the simulator
 
             num_cycles = 5
             while True:
-                print("\nUse 5 for cycle simulation? Or, please input an integer value for the number of cycles you want to simulate: ")
+                print(
+                    "\nUse 5 for cycle simulation? Or, please input an integer value for the number of cycles you want to simulate: ")
                 cycleInput = input()
                 if cycleInput == "":
                     print("\nWill simulate for n = " + str(num_cycles) + "\n")
                     break
                 elif (not cycleInput.isdigit()):
                     print("\nYour input value is not an integer or it's less than 0")
-                elif (int(cycleInput) <= 0 ):
+                elif (int(cycleInput) <= 0):
                     print("\nYour input value should be greater than 0")
                 else:
                     print("\nYour input is: ", cycleInput)
@@ -804,10 +812,8 @@ def main():
 
             #  function to simulate clock and incorporate into DFFs for basic_sim already given
             # print file
-            
+
             output_file(circuit_bench, num_cycles, fault, user_tv_str)
-            
-             
 
 
 if __name__ == "__main__":
