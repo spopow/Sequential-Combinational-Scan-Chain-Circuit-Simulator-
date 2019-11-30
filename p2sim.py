@@ -7,6 +7,7 @@ import csv
 import genFaultList
 from TVgen import TestVector_A, TestVector_B, TestVector_C, TestVector_D, TestVector_E, MarsenneTwisterPRTG
 from circuit_sim_result import output_file, printPOValues
+from scan_chain_sim_result import scan_output_file
 
 from testVectorUI import inputSizeFinder, twoComptoBinary, testVectorGen
 
@@ -761,16 +762,48 @@ def main():
                         print("\nChoice not valid. Please enter a valid choice.\n")
 
             if userFourthChoice == 1:
-                print("implementing: Partial Scan Chain\n")
-                implement = 0
+                print("Implementing Full Scan Chain\n")
+                scanType = 'partial'
 
             if userFourthChoice == 2:
-                print("implementing: Full Scan Chain\n")
-                implement = 0
+                print("Implementing Full Scan Chain\n")
+                scanType = 'full'
 
             if userFourthChoice == 3:
-                print("implementing: Parallel Scan Chain\n")
-                implement = 0
+                print("Implementing Parallel Scan Chain\n")
+                scanType = 'parallel'
+
+            print("Partial Scan Chain Sequential Circuit Simulation\n")
+            print("----------------------------------------------------\n")
+            # alexis
+            circuit_bench = input("Input a circuit benchmark: ")
+            # take file name and generate fault list for bench file ; output to terminal as list of numbers
+            fault = genFaultList.getFaultList(circuit_bench)
+            intVal = 0
+
+            # Write function to generate testvectors based on bench file
+
+            num_cycles = 5
+            while True:
+                print(
+                    "\nUse 5 for test apply cycle simulation? Or, please input an integer value for the number of cycles you want to simulate test apply for: ")
+                cycleInput = input()
+                if cycleInput == "":
+                    print("\nWill simulate for n = " + str(num_cycles) + "\n")
+                    break
+                elif (not cycleInput.isdigit()):
+                    print("\nYour input value is not an integer or it's less than 0")
+                elif (int(cycleInput) <= 0):
+                    print("\nYour input value should be greater than 0")
+                else:
+                    print("\nYour input is: ", cycleInput)
+                    num_cycles = int(cycleInput)
+                    break
+
+            #  function to simulate clock and incorporate into DFFs for basic_sim already given
+            # print file
+
+            scan_output_file(circuit_bench, num_cycles, fault, user_tv_str, scanType)
 
         if userThirdChoice == 2:  # sequential circuit simulation
             print("Sequential Circuit Simulation\n")
@@ -802,7 +835,7 @@ def main():
                     "\nUse 5 for cycle simulation? Or, please input an integer value for the number of cycles you want to simulate: ")
                 cycleInput = input()
                 if cycleInput == "":
-                    print("\nWill simulate for n = " + str(num_cycles) + "\n")
+                    print("\nWill simulate for _ test apply cycles = " + str(num_cycles) + "\n")
                     break
                 elif (not cycleInput.isdigit()):
                     print("\nYour input value is not an integer or it's less than 0")
@@ -816,7 +849,7 @@ def main():
             #  function to simulate clock and incorporate into DFFs for basic_sim already given
             # print file
 
-            output_file(circuit_bench, num_cycles, fault, user_tv_str)
+            scan_output_file(circuit_bench, num_cycles, fault, genTestvectors)
 
 
 if __name__ == "__main__":
