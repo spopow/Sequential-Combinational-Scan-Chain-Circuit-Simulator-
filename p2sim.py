@@ -20,6 +20,7 @@ from testVectorUI import inputSizeFinder, twoComptoBinary, testVectorGen
 # 5. basic_sim: the actual simulation
 # 6. main: The main function
 
+
 # gets all of the faults from the file
 def getFaults(faultFile):
     # opens the file
@@ -413,7 +414,8 @@ def inputRead(circuit, line):
 # -------------------------------------------------------------------------------------------------------------------- #
 #FIXME make sure basic_sim works with combinational
 # FUNCTION: the actual simulation #
-def basic_sim(circuit):
+def basic_sim(circuit, Fault_bool, fault):
+    from circuit_sim_result import getFaultCircuit
     # QUEUE and DEQUEUE
     # Creating a queue, using a list, containing all of the gates in the circuit
     queue = list(circuit["GATES"][1])
@@ -441,39 +443,46 @@ def basic_sim(circuit):
             # print("input wire is: ", term)
             # print("gate has been set? :", circuit[term][2])  # checking whether gate has been set or not
             # checks if gate is set to false (never produced a value)
-            # if circuit[term][3] == '1' or circuit[term][3] == '0':
+            oneInputSET = False
             if circuit[term][2]:  # if gate has been set
                 # print("gate has been set: ", term_has_value)
+                break
+            elif circuit[term][3] == '1' and (circuit[term][0] == "OR" or circuit[term][0] == "NOR"):
+                oneInputSET = True
+                break
+            elif circuit[term][3] == '0' and (circuit[term][0] == "AND" or circuit[term][0] == "NAND"):
+                oneInputSET = True
                 break
             else:
                 # if gate output has not been set yet
                 term_has_value = False
 
-        if term_has_value:  # if input terminals have been set
-            # print("Thus, term_has_value is set to :", term_has_value)
+        if term_has_value or oneInputSET:  # if input terminals have been set
+            print("Thus, term_has_value is set to :", term_has_value)
             # checks to make sure the gate output has not already been set
             if circuit[curr][2] == False:
                 # print("Curr  is set to", circuit[curr][2], "So it will proceed to gateCalc")
                 circuit = gateCalc(circuit, curr)
-                # print("Gate calc has finished:")
+                if Fault_bool:
+                    circuit = getFaultCircuit(circuit, fault)
+                print("Gate calc has finished:")
                 circuit[curr][2] = True
                 # print("gate set to true \n")
             elif circuit[curr][2] and circuit[curr][0] == "DFF":
                 # print("Curr  is set to", circuit[curr][2], "but DFF, ie. will proceed to gateCalc")
                 circuit = gateCalc(circuit, curr)
-                # print("Gate calc has finished:")
-
+                if Fault_bool:
+                    circuit = getFaultCircuit(circuit, fault)
+                print("Gate calc has finished:")
+            printCkt(circuit)
             # ERROR Detection if LOGIC does not exist
             if isinstance(circuit, str):
                 print(circuit)
                 return circuit
-
         else:
             # If the terminals have not been accessed yet, append the current node at the end of the queue
-            # print("curr is appended back")
-            #printCkt(circuit) 
-            
-            
+            print("curr is appended back")
+            # printCkt(circuit)
             queue.append(curr)
 
 
@@ -855,7 +864,7 @@ def main():
             #  function to simulate clock and incorporate into DFFs for basic_sim already given
             # print file
 
-            output_file(circuit_bench, num_cycles, fault, genTestvectors)
+            output_file(circuit_bench, num_cycles, fault, user_tv_str)
 
 
 if __name__ == "__main__":
