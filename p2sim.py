@@ -474,7 +474,7 @@ def basic_sim(circuit, Fault_bool, fault):
                 if Fault_bool:
                     circuit = getFaultCircuit(circuit, fault)
                 print("Gate calc has finished:")
-            printCkt(circuit)
+            #printCkt(circuit)
             # ERROR Detection if LOGIC does not exist
             if isinstance(circuit, str):
                 print(circuit)

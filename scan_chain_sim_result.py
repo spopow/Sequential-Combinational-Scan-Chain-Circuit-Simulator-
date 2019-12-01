@@ -24,7 +24,7 @@ def scan_output_file(bench_file, testApplyCycles, fault, scanType):
     good_circuit, totalCycles = getBasicSim(circuit, testApplyCycles, totalCycles, scanType, bench_file)
 
     # Print the final results of the golden circuit
-    printCkt(good_circuit)
+    #printCkt(good_circuit)
 
     # Write into the text file that will hold all the results
     simulatorTxt.write("******************GOOD CIRCUIT SIM********************\n")
@@ -145,13 +145,13 @@ def getBasicSim(circuit, testApplyCycles, totalCycles, scanType, circuitBench):
         # this one gets the DFFs
 
         circuit, totalCycles = scan_chain.scanChain(circuit, scanType, elTestVector[0], totalCycles)
-        printCkt(circuit)
+        #printCkt(circuit)
 
         # Update input values
         #this one gets the PO Values
         
         circuit = inputRead(circuit, elTestVector[1])
-        p2sim.printCkt(circuit)
+        #p2sim.printCkt(circuit)
         circuit = basic_sim(circuit)
 
         totalCycles += 1
@@ -168,7 +168,7 @@ def getBasicSim(circuit, testApplyCycles, totalCycles, scanType, circuitBench):
 # FUNCTION: storeScanOut
 # Outputs: appends scan out values into a list, that would be used later for comparison
 # Inputs: circuit dictionary
-def storeScanOut(circuit):
+def storeScanOut(circuit, someList):
     scanOutputs = []
     for gate in circuit:
         if circuit[gate][0] == "DFF":
@@ -178,7 +178,7 @@ def storeScanOut(circuit):
 # FUNCTION: storePrimaryOutputs
 # Outputs: appends PO into a list, that would be used later for comparison
 # Inputs: circuit dictionary
-def storePrimaryOutputs(circuit):
+def storePrimaryOutputs(circuit, someList):
     outputs = []
     outputList = circuit["OUTPUTS"][1]
     for output in outputList:
@@ -191,6 +191,7 @@ def storePrimaryOutputs(circuit):
     # True: Difference found between circuits so fault found
     # False: No Diffference Found
 # Inputs: Good & Bad lists, wether it's sequential or scan chain study
+# FIXME CHECK IF WORKS FOR OTHER SIMULATORS
 def outputComparator(badList, goodList):
     
     # error check to make sure lists are the same length
@@ -199,14 +200,19 @@ def outputComparator(badList, goodList):
         return -1
     # goes through each index of the lists and compares
     listLength = len(badList)
-    for index in range(listLength):
-        if(badList[index] != int(goodList[index]):
-            print("Lists are not the same! Fault has been found! ", badList[index], 
-            " of the bad list != ", goodList[index], " of the good list" )
-            return True
+    print("The list length is: ", listLength)
+    vectorLength = len(badList[0])
+    print("The vector length is ", vectorLength)
 
-    print("The lists are the same! No Fault has been found")
-    return False
+    for index in range(listLength):
+        for vctrIndex in range(vectorLength):
+            if badList[index][vctrIndex] != goodList[index][vctrIndex]:
+                print("Lists are not the same! Fault has been detected! ", badList[index], 
+                " of the bad list != ", goodList[index], " of the good list at cycle ", index )
+                return True, index
+
+    print("The lists are the same! No Fault has been detected")
+    return False, index
             
 
 
@@ -389,6 +395,6 @@ if __name__ == "__main__":
     testVector = [1, 0, 1]
     circuit = p2sim.netRead(fileName)
     #create own tuple testvestor
-    p2sim.printCkt(circuit)
+    #p2sim.printCkt(circuit)
     print(circuit)
     #circuit = getBasicSim(circuit, 5, 0, "full", fileName)

@@ -9,12 +9,17 @@ import json
 
 def output_file(bench_file, num_cycles, fault, user_tv_str):
     from p2sim import netRead, printCkt
+    from scan_chain_sim_result import outputComparator
+    goodlist = []
+    badList = []
+
     simulatorTxt = open("simulator.txt", "w+")
     circuit = netRead(bench_file)  # create original circuit
     clean_circuit = netRead(bench_file)
     Fault_bool = False
-    good_circuit = getBasicSim(circuit, num_cycles, user_tv_str, Fault_bool, fault)  # create circuit and update values
-    printCkt(good_circuit)
+    good_circuit = getBasicSim(circuit, num_cycles, user_tv_str, Fault_bool, fault)[0]  # create circuit and update values
+    goodlist = getBasicSim(clean_circuit, num_cycles, user_tv_str, Fault_bool, fault)[1]
+    #printCkt(good_circuit)
     simulatorTxt.write("******************GOOD CIRCUIT SIM********************\n")
     simulatorTxt.write("Flip Flop & Primary Outputs @ n = " + str(num_cycles) + "\n")
     simulatorTxt.write("******************************************************\n")
@@ -25,7 +30,14 @@ def output_file(bench_file, num_cycles, fault, user_tv_str):
     simulatorTxt.write("\nPrimary Outputs: " + str(numPrimOutputs) + "\n")
     printPOValues(good_circuit, simulatorTxt)  # call function that prints PO value - SZYMON TO-DO
     Fault_bool = True
-    badCircuit = getBasicSim(clean_circuit, num_cycles, user_tv_str, Fault_bool, fault)  # make circuit with fault and update values
+    badCircuit = getBasicSim(clean_circuit, num_cycles, user_tv_str, Fault_bool, fault)[0]  # make circuit with fault and update values
+    badList = getBasicSim(clean_circuit, num_cycles, user_tv_str, Fault_bool, fault)[1]
+    #print(outputComparator(badList, goodlist))
+    if (outputComparator(badList, goodlist)[0]):
+        compOut = "\n Fault has been detected at cycle, " + str(outputComparator(badList, goodlist)[1]) 
+        simulatorTxt.write(compOut)
+    else:
+        simulatorTxt.write("\n No Fault has been detected!")
     simulatorTxt.write("\n******************BAD CIRCUIT SIM********************\n")
     simulatorTxt.write("Fault: " + str(fault) + "\n")
     simulatorTxt.write("Flip Flop & Primary Outputs @ n = " + str(num_cycles) + "\n")
@@ -36,6 +48,7 @@ def output_file(bench_file, num_cycles, fault, user_tv_str):
     simulatorTxt.write("\nPrimary Outputs: " + str(numPrimOutputs) + "\n")
     simulatorTxt.write("-----------------------------\n")
     # function that prints output value
+    printPOValues(badCircuit, simulatorTxt)
 
 
 def getNumFF(bench_file):
@@ -59,23 +72,32 @@ def getNumPrimaryOutputs(bench_file):
 
 
 def getBasicSim(circuit, total_cycles, user_tv_str, Fault_bool, fault):
-    from p2sim import printCkt
-    print("stuck at get basic sim\n")
-    from p2sim import basic_sim, inputRead
+    
+    from p2sim import basic_sim, inputRead, printCkt
+    from scan_chain_sim_result import storePrimaryOutputs
     circuit = inputRead(circuit, user_tv_str)
     cycle = 0
+    badList = []
+    goodList = []
+    
     while cycle < total_cycles:
         if Fault_bool:
             print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n")
             circuit = getFaultCircuit(circuit, fault)  # sets fault line = true
         circuit = basic_sim(circuit, Fault_bool, fault)
+        if Fault_bool:
+            badList.append(storePrimaryOutputs(circuit, badList))
+        else:
+            goodList.append(storePrimaryOutputs(circuit, goodList))
         circuit = reset_Gate_T_F(circuit)  # resets all except dff's/PIs
         print("gates being reset to false")
         cycle = cycle + 1
         print("running cycle: " + str(cycle) + "\n")
     print("done with basic sim w Fault= " + str(Fault_bool) + "\n")
-    printCkt(circuit)
-    return circuit
+    if Fault_bool:
+        return circuit, badList
+    else:
+        return circuit, goodList
 
 
 def getFaultCircuit(circuit, fault):
@@ -105,7 +127,7 @@ def getFaultCircuit(circuit, fault):
                 for gateInput in faultCircuit[key][1]:
                     if faultLine[5][2] == gateInput[5:]:
                         faultCircuit[key][1][inputIndex] = "faultWire"
-    printCkt(faultCircuit)
+    #printCkt(faultCircuit)
     return faultCircuit
 
 

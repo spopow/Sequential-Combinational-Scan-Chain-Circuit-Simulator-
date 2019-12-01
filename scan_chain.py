@@ -83,6 +83,6 @@ if __name__ == "__main__":
     fileName = "s27.bench"
     testVector = [1, 0, 1]
     circuit = p2sim.netRead(fileName)
-    p2sim.printCkt(circuit)
+    #p2sim.printCkt(circuit)
     circuit = scanChain(circuit, 'partial', testVector, 0)
     print(circuit[1])
