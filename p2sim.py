@@ -378,6 +378,8 @@ def gateCalc(circuit, node):
 # -------------------------------------------------------------------------------------------------------------------- #
 # FUNCTION: Updating the circuit dictionary with the input line, and also resetting the gates and output lines
 def inputRead(circuit, line):
+    #print("DOes it break at line?")
+    #print(line)     DEBUG COMMENT
     # Checking if input bits are enough for the circuit
     if len(line) < circuit["INPUT_WIDTH"][1]:
         return -1
@@ -453,14 +455,14 @@ def basic_sim(circuit, Fault_bool, fault):
                 term_has_value = False
 
         if term_has_value or oneInputSET:  # if input terminals have been set
-            print("Thus, term_has_value is set to :", term_has_value)
+            #print("Thus, term_has_value is set to :", term_has_value)
             # checks to make sure the gate output has not already been set
             if circuit[curr][2] == False:
                 # print("Curr  is set to", circuit[curr][2], "So it will proceed to gateCalc")
                 circuit = gateCalc(circuit, curr)
                 if Fault_bool:
                     circuit = getFaultCircuit(circuit, fault)
-                print("Gate calc has finished:")
+                #print("Gate calc has finished:")   DEBUG COMMENT
                 circuit[curr][2] = True
                 # print("gate set to true \n")
             elif circuit[curr][2] and circuit[curr][0] == "DFF":
@@ -468,15 +470,15 @@ def basic_sim(circuit, Fault_bool, fault):
                 circuit = gateCalc(circuit, curr)
                 if Fault_bool:
                     circuit = getFaultCircuit(circuit, fault)
-                print("Gate calc has finished:")
-            printCkt(circuit)
+                #print("Gate calc has finished:")    DEBUG COMMENT
+            #printCkt(circuit)     DEBUG COMMENT
             # ERROR Detection if LOGIC does not exist
             if isinstance(circuit, str):
                 print(circuit)
                 return circuit
         else:
             # If the terminals have not been accessed yet, append the current node at the end of the queue
-            print("curr is appended back")
+            #print("curr is appended back")               DEBUG COMMENT
             # printCkt(circuit)
             queue.append(curr)
 
