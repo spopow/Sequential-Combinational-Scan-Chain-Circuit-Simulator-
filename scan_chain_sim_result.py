@@ -176,7 +176,6 @@ def storeScanOut(circuit):
 # Outputs: appends PO into a list, that would be used later for comparison
 # Inputs: circuit dictionary
 def storePrimaryOutputs(circuit):
-
     outputs = []
     outputList = circuit["OUTPUTS"][1]
     for output in outputList:
