@@ -200,19 +200,19 @@ def outputComparator(badList, goodList):
         return -1
     # goes through each index of the lists and compares
     listLength = len(badList)
-    print("The list length is: ", listLength)
-    vectorLength = len(badList[0])
-    print("The vector length is ", vectorLength)
+    PO_Length = len(badList[0])
+
 
     for index in range(listLength):
-        for vctrIndex in range(vectorLength):
+        for vctrIndex in range(PO_Length):
             if badList[index][vctrIndex] != goodList[index][vctrIndex]:
-                print("Lists are not the same! Fault has been detected! ", badList[index], 
-                " of the bad list != ", goodList[index], " of the good list at cycle ", index )
+                index = index + 1
+                # Debugger
+                # print("Lists are not the same! Fault has been detected! ", badList[index-1], 
+                # " of the bad list != ", goodList[index-1], " of the good list at cycle ", index )
                 return True, index
 
-    print("The lists are the same! No Fault has been detected")
-    return False, index
+    return False, index+1
             
 
 

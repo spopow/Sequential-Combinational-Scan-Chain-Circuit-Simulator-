@@ -1,0 +1,67 @@
+******************GOOD CIRCUIT SIM********************
+Flip Flop & Primary Outputs @ n = 5
+---------------------DFF VALUES-------------------------
+ DFF_0: 0 
+ DFF_1: 0 
+ DFF_2: 0 
+ DFF_3: 0 
+ DFF_4: 0 
+ DFF_5: 0 
+ DFF_6: 0 
+ DFF_7: U 
+ DFF_8: 0 
+ DFF_9: 0 
+ DFF_10: 0 
+ DFF_11: 0 
+ DFF_12: 0 
+ DFF_13: 0 
+ DFF_14: 1 
+ DFF_15: 1 
+ DFF_16: 0 
+ DFF_17: 0 
+ DFF_18: 0 
+ DFF_19: 0 
+ DFF_20: 0 
+-----------------Primary Output Values-----------------
+wire_G198: 1
+wire_G213: 0
+wire_G147: 0
+wire_G199: 0
+wire_G214: 0
+wire_G148: 1
+******************BAD CIRCUIT SIM********************
+Fault: G206-SA-1
+Flip Flop & Primary Outputs @ n = 5
+
+******************FAULT DETECTION********************
+
+G206-SA-1 has been detected at cycle 1 with test vector 111
+---------------------DFF VALUES-------------------------
+ DFF_0: 0 
+ DFF_1: 0 
+ DFF_2: 0 
+ DFF_3: 0 
+ DFF_4: 0 
+ DFF_5: 0 
+ DFF_6: 0 
+ DFF_7: U 
+ DFF_8: 0 
+ DFF_9: 0 
+ DFF_10: 0 
+ DFF_11: 0 
+ DFF_12: 0 
+ DFF_13: 0 
+ DFF_14: 1 
+ DFF_15: 1 
+ DFF_16: 0 
+ DFF_17: 0 
+ DFF_18: 0 
+ DFF_19: 0 
+ DFF_20: 1 
+-----------------Primary Output Values-----------------
+wire_G198: U
+wire_G213: 0
+wire_G147: 0
+wire_G199: U
+wire_G214: 0
+wire_G148: U

@@ -8,8 +8,8 @@ import genFaultList
 from TVgen import TestVector_A, TestVector_B, TestVector_C, TestVector_D, TestVector_E, MarsenneTwisterPRTG
 from circuit_sim_result import output_file, printPOValues
 
-
 from testVectorUI import inputSizeFinder, twoComptoBinary, testVectorGen
+
 
 # Function List:csv
 # 0. getFaults: gets the faults from the file
@@ -46,6 +46,7 @@ def getFaults(faultFile):
         faults.append(data)
     inFile.close()
     return faults
+
 
 # -------------------------------------------------------------------------------------------------------------------- #
 # FUNCTION: Neatly prints the Circuit Dictionary:
@@ -196,7 +197,6 @@ def netRead(netName):
 # -------------------------------------------------------------------------------------------------------------------- #
 # FUNCTION: calculates the output value for each logic gate
 def gateCalc(circuit, node):
-   
     # terminal will contain all the input wires of this logic gate (node)
     terminals = list(circuit[node][1])
 
@@ -211,7 +211,7 @@ def gateCalc(circuit, node):
             circuit[node][3] = "U"
         else:  # Should not be able to come here
             return -1
- 
+
         return circuit
 
     # If the node is an Buffer gate output, solve and return the output
@@ -224,7 +224,7 @@ def gateCalc(circuit, node):
             circuit[node][3] = "U"
         else:  # Should not be able to come here
             return -1
-       
+
         return circuit
 
     # If the node is an Inverter gate output, solve and return the output
@@ -237,7 +237,7 @@ def gateCalc(circuit, node):
             circuit[node][3] = "U"
         else:  # Should not be able to come here
             return -1
-  
+
         return circuit
 
     # If the node is an AND gate output, solve and return the output
@@ -282,7 +282,7 @@ def gateCalc(circuit, node):
         if unknownTerm:
             if circuit[node][3] == '0':
                 circuit[node][3] = "U"
-   
+
         return circuit
 
     # If the node is an OR gate output, solve and return the output
@@ -303,7 +303,7 @@ def gateCalc(circuit, node):
         if unknownTerm:
             if circuit[node][3] == '0':
                 circuit[node][3] = "U"
-    
+
         return circuit
 
     # If the node is an NOR gate output, solve and return the output
@@ -317,14 +317,14 @@ def gateCalc(circuit, node):
         for term in terminals:
             if circuit[term][3] == '1':
                 circuit[node][3] = '0'
-               
+
                 break
             if circuit[term][3] == "U":
                 unknownTerm = True
         if unknownTerm:
             if circuit[node][3] == '1':
                 circuit[node][3] = "U"
-                
+
         return circuit
 
     # If the node is an XOR gate output, solve and return the output
@@ -338,7 +338,7 @@ def gateCalc(circuit, node):
                 count += 1  # For each 1 bit, add one count
             if circuit[term][3] == "U":
                 circuit[node][3] = "U"
-                
+
                 return circuit
 
         # check how many 1's we counted
@@ -346,7 +346,7 @@ def gateCalc(circuit, node):
             circuit[node][3] = '1'
         else:  # Otherwise, the output is equal to how many 1's there are
             circuit[node][3] = '0'
-        
+
         return circuit
 
     # If the node is an XNOR gate output, solve and return the output
@@ -360,7 +360,7 @@ def gateCalc(circuit, node):
                 count += 1  # For each 1 bit, add one count
             if circuit[term][3] == "U":
                 circuit[node][3] = "U"
-                
+
                 return circuit
 
         # check how many 1's we counted
@@ -368,7 +368,7 @@ def gateCalc(circuit, node):
             circuit[node][3] = '0'
         else:  # Otherwise, the output is equal to how many 1's there are
             circuit[node][3] = '1'
-        
+
         return circuit
 
     # Error detection... should not be able to get at this point
@@ -378,8 +378,8 @@ def gateCalc(circuit, node):
 # -------------------------------------------------------------------------------------------------------------------- #
 # FUNCTION: Updating the circuit dictionary with the input line, and also resetting the gates and output lines
 def inputRead(circuit, line):
-    print("DOes it break at line?")
-    print(line)
+    #print("DOes it break at line?")
+    #print(line)     DEBUG COMMENT
     # Checking if input bits are enough for the circuit
     if len(line) < circuit["INPUT_WIDTH"][1]:
         return -1
@@ -406,13 +406,10 @@ def inputRead(circuit, line):
         if circuit[gate][0] == 'DFF':
             circuit[gate][2] = True
 
-
-
     return circuit
 
 
 # -------------------------------------------------------------------------------------------------------------------- #
-#FIXME make sure basic_sim works with combinational
 # FUNCTION: the actual simulation #
 def basic_sim(circuit, Fault_bool, fault):
     from circuit_sim_result import getFaultCircuit
@@ -458,14 +455,14 @@ def basic_sim(circuit, Fault_bool, fault):
                 term_has_value = False
 
         if term_has_value or oneInputSET:  # if input terminals have been set
-            print("Thus, term_has_value is set to :", term_has_value)
+            #print("Thus, term_has_value is set to :", term_has_value)
             # checks to make sure the gate output has not already been set
             if circuit[curr][2] == False:
                 # print("Curr  is set to", circuit[curr][2], "So it will proceed to gateCalc")
                 circuit = gateCalc(circuit, curr)
                 if Fault_bool:
                     circuit = getFaultCircuit(circuit, fault)
-                print("Gate calc has finished:")
+                #print("Gate calc has finished:")   DEBUG COMMENT
                 circuit[curr][2] = True
                 # print("gate set to true \n")
             elif circuit[curr][2] and circuit[curr][0] == "DFF":
@@ -473,22 +470,67 @@ def basic_sim(circuit, Fault_bool, fault):
                 circuit = gateCalc(circuit, curr)
                 if Fault_bool:
                     circuit = getFaultCircuit(circuit, fault)
-                print("Gate calc has finished:")
-            #printCkt(circuit)
+                #print("Gate calc has finished:")    DEBUG COMMENT
+            #printCkt(circuit)     DEBUG COMMENT
             # ERROR Detection if LOGIC does not exist
             if isinstance(circuit, str):
-                print(circuit)
+                #print(circuit)
                 return circuit
         else:
             # If the terminals have not been accessed yet, append the current node at the end of the queue
-            print("curr is appended back")
+            #print("curr is appended back")               DEBUG COMMENT
             # printCkt(circuit)
             queue.append(curr)
-
 
     return circuit
 
 
+def basic_sim_comb(circuit):
+    # QUEUE and DEQUEUE
+    # Creating a queue, using a list, containing all of the gates in the circuit
+    queue = list(circuit["GATES"][1])
+    i = 1
+
+    while True:
+        i -= 1
+        # If there's no more things in queue, done
+        if len(queue) == 0:
+            break
+
+        # Remove the first element of the queue and assign it to a variable for us to use
+        curr = queue[0]
+        queue.remove(curr)
+
+        # initialize a flag, used to check if every terminal has been accessed
+        term_has_value = True
+
+        # Check if the terminals have been accessed
+        for term in circuit[curr][1]:
+            if not circuit[term][2]:
+                term_has_value = False
+                break
+
+        if term_has_value:
+
+            # checks to make sure the gate output has not already been set
+            if (circuit[curr][2] == False):
+                circuit = gateCalc(circuit, curr)
+
+            circuit[curr][2] = True
+
+            # ERROR Detection if LOGIC does not exist
+            if isinstance(circuit, str):
+                print(circuit)
+                return circuit
+
+        else:
+            # If the terminals have not been accessed yet, append the current node at the end of the queue
+            queue.append(curr)
+
+    return circuit
+
+
+# FIXME Getting this error: '/bin/sh: 1: gnuplot: not found'
 def plot():
     plotProcess = subprocess.Popen("gnuplot p2plot.gpl", shell=True)
     os.waitpid(plotProcess.pid, 0)
@@ -533,8 +575,6 @@ def main():
     # printCkt(circuit)
     # keep an initial (unassigned any value) copy of the circuit for an easy reset
     newCircuit = circuit
-    
-    
 
     if (userChoice == 1):
         while True:
@@ -583,7 +623,7 @@ def main():
         elif userSecondChoice == 2:
             # get batch size
             while True:
-                #FIXME allow for 
+                # FIXME allow for
                 print("\nOption 2: Fault Coverage Simulation.")
                 batchSize = 1
                 print("Choose a batch size in [1, 10]: ", end="")
@@ -600,9 +640,8 @@ def main():
             # gets the faults that need to be tested
             faults = getFaults("f_list.txt")
             temp = open("FaultFile.txt", "w")
-            temp.write(json.dumps(faults, indent = 4))
+            temp.write(json.dumps(faults, indent=4))
             temp.close()
-
 
             print("\ninput files: circ.bench, TV_E.txt, MarsenneTwisterPRTG.txt")
             print("output file: f_cvg.csv")
@@ -663,7 +702,7 @@ def main():
                             print("...move on to next input\n")
                             continue
 
-                        circuit = basic_sim(circuit)
+                        circuit = basic_sim_comb(circuit)
 
                         for y in circuit["OUTPUTS"][1]:
                             if not circuit[y][2]:
@@ -709,7 +748,7 @@ def main():
                                             inputIndex += 1
 
                             # runs Circuit Simulation
-                            faultCircuit = basic_sim(faultCircuit)
+                            faultCircuit = basic_sim_comb(faultCircuit)
 
                             # gets the output
                             faultOutput = ""
@@ -817,7 +856,6 @@ def main():
             #  function to simulate clock and incorporate into DFFs for basic_sim already given
             # print file
 
-            
             scan_output_file(circuit_bench, num_cycles, fault, scanType)
 
         if userThirdChoice == 2:  # sequential circuit simulation
