@@ -64,7 +64,6 @@ def printCkt(circuit):
     for x in circuit["GATES"][1]:
         print(x + "= ", end='')
         print(circuit[x])
-    print()
 
 
 # -------------------------------------------------------------------------------------------------------------------- #
@@ -197,7 +196,7 @@ def netRead(netName):
 # -------------------------------------------------------------------------------------------------------------------- #
 # FUNCTION: calculates the output value for each logic gate
 def gateCalc(circuit, node):
-    print("stuck at gate calc\n")
+   
     # terminal will contain all the input wires of this logic gate (node)
     terminals = list(circuit[node][1])
 
@@ -212,7 +211,7 @@ def gateCalc(circuit, node):
             circuit[node][3] = "U"
         else:  # Should not be able to come here
             return -1
-        print("done modeling DFF")
+ 
         return circuit
 
     # If the node is an Buffer gate output, solve and return the output
@@ -225,7 +224,7 @@ def gateCalc(circuit, node):
             circuit[node][3] = "U"
         else:  # Should not be able to come here
             return -1
-        print("done modeling BUFF")
+       
         return circuit
 
     # If the node is an Inverter gate output, solve and return the output
@@ -238,7 +237,7 @@ def gateCalc(circuit, node):
             circuit[node][3] = "U"
         else:  # Should not be able to come here
             return -1
-        print("done modeling NOT")
+  
         return circuit
 
     # If the node is an AND gate output, solve and return the output
@@ -260,7 +259,7 @@ def gateCalc(circuit, node):
         if unknownTerm:
             if circuit[node][3] == '1':
                 circuit[node][3] = "U"
-        print("done modeling AND")
+
         return circuit
 
     # If the node is a NAND gate output, solve and return the output
@@ -283,7 +282,7 @@ def gateCalc(circuit, node):
         if unknownTerm:
             if circuit[node][3] == '0':
                 circuit[node][3] = "U"
-        print("done modeling NAND")
+   
         return circuit
 
     # If the node is an OR gate output, solve and return the output
@@ -304,7 +303,7 @@ def gateCalc(circuit, node):
         if unknownTerm:
             if circuit[node][3] == '0':
                 circuit[node][3] = "U"
-        print("done modeling OR")
+    
         return circuit
 
     # If the node is an NOR gate output, solve and return the output
@@ -318,15 +317,14 @@ def gateCalc(circuit, node):
         for term in terminals:
             if circuit[term][3] == '1':
                 circuit[node][3] = '0'
-                print("setting output to 0 in an NOR gate")
+               
                 break
             if circuit[term][3] == "U":
                 unknownTerm = True
         if unknownTerm:
             if circuit[node][3] == '1':
                 circuit[node][3] = "U"
-                print("setting output to U in an NOR gate")
-        print("done modeling NOR")
+                
         return circuit
 
     # If the node is an XOR gate output, solve and return the output
@@ -340,7 +338,7 @@ def gateCalc(circuit, node):
                 count += 1  # For each 1 bit, add one count
             if circuit[term][3] == "U":
                 circuit[node][3] = "U"
-                print("done modeling XOR")
+                
                 return circuit
 
         # check how many 1's we counted
@@ -348,7 +346,7 @@ def gateCalc(circuit, node):
             circuit[node][3] = '1'
         else:  # Otherwise, the output is equal to how many 1's there are
             circuit[node][3] = '0'
-        print("done modeling XOR")
+        
         return circuit
 
     # If the node is an XNOR gate output, solve and return the output
@@ -362,7 +360,7 @@ def gateCalc(circuit, node):
                 count += 1  # For each 1 bit, add one count
             if circuit[term][3] == "U":
                 circuit[node][3] = "U"
-                print("done modeling XNOR")
+                
                 return circuit
 
         # check how many 1's we counted
@@ -370,7 +368,7 @@ def gateCalc(circuit, node):
             circuit[node][3] = '0'
         else:  # Otherwise, the output is equal to how many 1's there are
             circuit[node][3] = '1'
-        print("done modeling XNOR")
+        
         return circuit
 
     # Error detection... should not be able to get at this point
@@ -380,6 +378,8 @@ def gateCalc(circuit, node):
 # -------------------------------------------------------------------------------------------------------------------- #
 # FUNCTION: Updating the circuit dictionary with the input line, and also resetting the gates and output lines
 def inputRead(circuit, line):
+    print("DOes it break at line?")
+    print(line)
     # Checking if input bits are enough for the circuit
     if len(line) < circuit["INPUT_WIDTH"][1]:
         return -1
@@ -406,12 +406,13 @@ def inputRead(circuit, line):
         if circuit[gate][0] == 'DFF':
             circuit[gate][2] = True
 
-    printCkt(circuit)
+
 
     return circuit
 
 
 # -------------------------------------------------------------------------------------------------------------------- #
+#FIXME make sure basic_sim works with combinational
 # FUNCTION: the actual simulation #
 def basic_sim(circuit, Fault_bool, fault):
     from circuit_sim_result import getFaultCircuit
@@ -424,27 +425,27 @@ def basic_sim(circuit, Fault_bool, fault):
         i -= 1
         # If there's no more things in queue, done
         if len(queue) == 0:
-            print("Existing queue")
+            # print("Existing queue")
             break
 
         # Remove the first element of the queue and assign it to a variable for us to use
         curr = queue[0]  # output of gate
-        print("Curr is: ", curr)
+        # print("Curr is: ", curr)
         queue.remove(curr)
-        print("The queue is now: ", queue)
+        # print("The queue is now: ", queue)
 
         # initialize a flag, used to check if every terminal has been accessed
         term_has_value = True
         # Check if the terminals have been accessed
 
-        print("The circuit[curr][1] is :", circuit[curr][1])
+        # print("The circuit[curr][1] is :", circuit[curr][1])
         for term in circuit[curr][1]:  # checking each input for gate
-            print("input wire is: ", term)
-            print("gate has been set? :", circuit[term][2])  # checking whether gate has been set or not
+            # print("input wire is: ", term)
+            # print("gate has been set? :", circuit[term][2])  # checking whether gate has been set or not
             # checks if gate is set to false (never produced a value)
             oneInputSET = False
             if circuit[term][2]:  # if gate has been set
-                print("gate has been set: ", term_has_value)
+                # print("gate has been set: ", term_has_value)
                 break
             elif circuit[term][3] == '1' and (circuit[term][0] == "OR" or circuit[term][0] == "NOR"):
                 oneInputSET = True
@@ -460,15 +461,15 @@ def basic_sim(circuit, Fault_bool, fault):
             print("Thus, term_has_value is set to :", term_has_value)
             # checks to make sure the gate output has not already been set
             if circuit[curr][2] == False:
-                print("Curr  is set to", circuit[curr][2], "So it will proceed to gateCalc")
+                # print("Curr  is set to", circuit[curr][2], "So it will proceed to gateCalc")
                 circuit = gateCalc(circuit, curr)
                 if Fault_bool:
                     circuit = getFaultCircuit(circuit, fault)
                 print("Gate calc has finished:")
                 circuit[curr][2] = True
-                print("gate set to true \n")
+                # print("gate set to true \n")
             elif circuit[curr][2] and circuit[curr][0] == "DFF":
-                print("Curr  is set to", circuit[curr][2], "but DFF, ie. will proceed to gateCalc")
+                # print("Curr  is set to", circuit[curr][2], "but DFF, ie. will proceed to gateCalc")
                 circuit = gateCalc(circuit, curr)
                 if Fault_bool:
                     circuit = getFaultCircuit(circuit, fault)
@@ -582,6 +583,7 @@ def main():
         elif userSecondChoice == 2:
             # get batch size
             while True:
+                #FIXME allow for 
                 print("\nOption 2: Fault Coverage Simulation.")
                 batchSize = 1
                 print("Choose a batch size in [1, 10]: ", end="")
@@ -597,6 +599,10 @@ def main():
 
             # gets the faults that need to be tested
             faults = getFaults("f_list.txt")
+            temp = open("FaultFile.txt", "w")
+            temp.write(json.dumps(faults, indent = 4))
+            temp.close()
+
 
             print("\ninput files: circ.bench, TV_E.txt, MarsenneTwisterPRTG.txt")
             print("output file: f_cvg.csv")
@@ -811,7 +817,8 @@ def main():
             #  function to simulate clock and incorporate into DFFs for basic_sim already given
             # print file
 
-            #scan_output_file(circuit_bench, num_cycles, fault, user_tv_str, scanType)  TODO commmenting for test
+            
+            scan_output_file(circuit_bench, num_cycles, fault, scanType)
 
         if userThirdChoice == 2:  # sequential circuit simulation
             print("Sequential Circuit Simulation\n")
@@ -827,7 +834,7 @@ def main():
                 if userInput == "":
                     print("\nYour integer for your test vector is: ", intVal)
                     break
-                # FIXME
+                # FIXME make sure it works for negative integers again
                 elif not userInput.isnumeric():
                     print("\nYour input value is not an integer")
                 else:

@@ -3,6 +3,7 @@ import os
 import math
 import random
 
+
 def convert(s): 
   
     # initialization of string to "" 
