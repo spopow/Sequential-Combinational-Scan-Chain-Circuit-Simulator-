@@ -1,5 +1,7 @@
 import copy
-from scan_chain import scanChain
+import scan_chain
+import p2sim
+import random
 
 
 # input t,n,f
@@ -7,26 +9,26 @@ from scan_chain import scanChain
 # output : content of all ff's, primary outputs for good circuit and a fault
 
 
-def scan_output_file(bench_file, testApplyCycles, fault, elTestVector, scanType):
+def scan_output_file(bench_file, testApplyCycles, fault, scanType):
     from p2sim import netRead, printCkt
 
     totalCycles = 0
 
     # Text file that will hold all the results
-    simulatorTxt = open("simulator.txt", "w+")
+    simulatorTxt = open("Scan Output.txt", "w+")
 
     # Create dictionary of circuit via benchmark file
     circuit = netRead(bench_file)
 
     # Run circuit simulation to generate the results of the good circuit
-    good_circuit = getBasicSim(circuit, testApplyCycles, totalCycles, elTestVector, scanType)
+    good_circuit, totalCycles = getBasicSim(circuit, testApplyCycles, totalCycles, scanType, bench_file)
 
     # Print the final results of the golden circuit
     printCkt(good_circuit)
 
     # Write into the text file that will hold all the results
     simulatorTxt.write("******************GOOD CIRCUIT SIM********************\n")
-    simulatorTxt.write("Flip Flop & Primary Outputs @ n = " + str(num_cycles) + "\n")
+    simulatorTxt.write("Flip Flop & Primary Outputs @ n = " + str(totalCycles) + "\n")
     simulatorTxt.write("******************************************************\n")
 
     # Get the number of flip flops in the circuit
@@ -45,13 +47,68 @@ def scan_output_file(bench_file, testApplyCycles, fault, elTestVector, scanType)
     # badCircuit = getFaultCvgSeq(circuit, fault, num_cycles)  # make circuit with fault and update values - JAS TD
     simulatorTxt.write("\n******************BAD CIRCUIT SIM********************\n")
     simulatorTxt.write("Fault: " + str(fault) + "\n")
-    simulatorTxt.write("Flip Flop & Primary Outputs @ n = " + str(num_cycles) + "\n")
+    simulatorTxt.write("Flip Flop & Primary Outputs @ n = " + str(totalCycles) + "\n")
     simulatorTxt.write("*****************************************************\n")
     simulatorTxt.write("D-Type Flip Flops: " + numFlipFlops + "\n")
     # call function that prints ff/value
     printFFvalues(circuit, simulatorTxt)
     simulatorTxt.write("\nPrimary Outputs: " + str(numPrimOutputs) + "\n")
     simulatorTxt.write("-----------------------------\n")
+    simulatorTxt.close()
+
+
+def inputSizeFinder(circuit):
+
+    f = open(circuit,'r')
+    inputCtr = 0
+    for line in f:
+
+        if (line == '\n'):
+            continue
+        if(line[0] == '#'):
+            continue
+        if line[0:6] == "OUTPUT":
+            continue
+        if (line[0:5] == "INPUT"):
+            inputCtr += 1
+            continue
+
+    return inputCtr
+
+
+# Pass in circuit benchmark
+def LFSRtestGen(circuit):
+    lineOfPI = ''
+    listDFF = []
+    outVect = ''
+    #vector Size is the num PI and the num DFF
+    
+    vectPI = inputSizeFinder(circuit)
+    vectDFF = _DFFnumFinder(circuit)
+
+    #for how many test cycles, we create that many randomly generated test vectors
+    #listPI needs to return a string
+    outVect = random.randint(0, 2**(vectPI - 1))
+    outVect = format(outVect, '0'+str(vectPI)+'b')
+    lineOfPI = outVect
+    #listDFF needs to return list of single bit strings
+    outVect = random.randint(0, 2**(vectDFF - 1))
+    outVect = format(outVect, '0'+str(vectDFF)+'b')
+    listDFF = list(outVect)
+
+    #returning a tuple
+    return listDFF, lineOfPI
+
+def _DFFnumFinder(circuit):
+
+    f = open(circuit,'r')
+    DFFctr = 0
+    for line in f:
+        if line.find("DFF") > 0:
+            DFFctr += 1
+            continue
+
+    return DFFctr
 
 
 def getNumFF(bench_file):
@@ -75,20 +132,27 @@ def getNumPrimaryOutputs(bench_file):
     return numOutputs
 
 
-def getBasicSim(circuit, testApplyCycles, totalCycles, elTestVector, scanType):
+#requires the circuit as an object
+def getBasicSim(circuit, testApplyCycles, totalCycles, scanType, circuitBench):
     print("stuck at get basic sim\n")
-    from p2sim import basic_sim, inputRead
+    from p2sim import basic_sim, inputRead, printCkt
 
     cycle = 0
-
+    elTestVector = LFSRtestGen(circuitBench)
     while cycle < testApplyCycles:
         # Update scan chain with incoming testvectors
-        circuit, totalCycles = scanChain(circuit, scanType, elTestVector, totalCycles)
+        # this one gets the DFFs
+
+        circuit, totalCycles = scan_chain.scanChain(circuit, scanType, elTestVector[0], totalCycles)
+        printCkt(circuit)
 
         # Update input values
-        circuit = inputRead(circuit, elTestVector)
-
+        #this one gets the PO Values
+        
+        circuit = inputRead(circuit, elTestVector[1])
+        p2sim.printCkt(circuit)
         circuit = basic_sim(circuit)
+        totalCycles += 1
         circuit = reset_Gate_T_F(circuit)  # function to reset all False to true for each gate that is not a DFF
         print("gates being reset to false")
         cycle = cycle + 1
@@ -96,7 +160,7 @@ def getBasicSim(circuit, testApplyCycles, totalCycles, elTestVector, scanType):
 
     # TODO Szymon, add a final function that scans out and updates the totalCycles depending on the typeScan
 
-    return circuit
+    return circuit, totalCycles
 
 
 def printFFvalues(circuit, file):
@@ -243,3 +307,14 @@ def reset_Gate_T_F(circuit):
             circuit[curr][2] = False
             # print("Curr is now: " + str(circuit[curr]) + "\n")
     return circuit
+
+# If this module is executed alone
+if __name__ == "__main__":
+    # let's read the name of bench file
+    fileName = "s27.bench"
+    testVector = [1, 0, 1]
+    circuit = p2sim.netRead(fileName)
+    #create own tuple testvestor
+    p2sim.printCkt(circuit)
+    print(circuit)
+    #circuit = getBasicSim(circuit, 5, 0, "full", fileName)

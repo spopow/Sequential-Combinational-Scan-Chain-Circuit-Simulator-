@@ -134,12 +134,7 @@
             "wire_G8"
         ],
         false,
-<<<<<<< HEAD
-        "U",
-        0
-=======
         "U"
->>>>>>> beeb5cb3c176790196aa7395504674ffb2c09515
     ],
     "wire_G16": [
         "OR",
@@ -148,12 +143,7 @@
             "wire_G8"
         ],
         false,
-<<<<<<< HEAD
-        "U",
-        0
-=======
         "0"
->>>>>>> beeb5cb3c176790196aa7395504674ffb2c09515
     ],
     "wire_G17": [
         "NOT",
@@ -161,41 +151,17 @@
             "wire_G11"
         ],
         false,
-<<<<<<< HEAD
-        "U",
-        0
-=======
         "1"
->>>>>>> beeb5cb3c176790196aa7395504674ffb2c09515
     ],
     "wire_G2": [
         "INPUT",
         "wire_G2",
-<<<<<<< HEAD
-        false,
-        "U"
-=======
         true,
         "0"
->>>>>>> beeb5cb3c176790196aa7395504674ffb2c09515
     ],
     "wire_G3": [
         "INPUT",
         "wire_G3",
-<<<<<<< HEAD
-        false,
-        "U"
-    ],
-    "wire_G5": [
-        "DFF":
-            ,
-        [
-            "wire_G10"
-        ],
-        false,
-        "U",
-        0
-=======
         true,
         "0"
     ],
@@ -206,35 +172,22 @@
         ],
         true,
         "1"
->>>>>>> beeb5cb3c176790196aa7395504674ffb2c09515
     ],
     "wire_G6": [
         "DFF",
         [
             "wire_G11"
         ],
-<<<<<<< HEAD
-        false,
-        "U",
-        0
-=======
         true,
         "0"
->>>>>>> beeb5cb3c176790196aa7395504674ffb2c09515
     ],
     "wire_G7": [
         "DFF",
         [
             "wire_G13"
         ],
-<<<<<<< HEAD
-        false,
-        "U",
-        0
-=======
         true,
         "U"
->>>>>>> beeb5cb3c176790196aa7395504674ffb2c09515
     ],
     "wire_G8": [
         "AND",
@@ -243,12 +196,7 @@
             "wire_G6"
         ],
         false,
-<<<<<<< HEAD
-        "U",
-        0
-=======
         "0"
->>>>>>> beeb5cb3c176790196aa7395504674ffb2c09515
     ],
     "wire_G9": [
         "NAND",
