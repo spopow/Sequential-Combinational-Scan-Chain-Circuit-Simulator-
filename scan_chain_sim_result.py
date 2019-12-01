@@ -136,6 +136,7 @@ def getNumPrimaryOutputs(bench_file):
 def getBasicSim(circuit, testApplyCycles, totalCycles, scanType, circuitBench):
     print("stuck at get basic sim\n")
     from p2sim import basic_sim, inputRead, printCkt
+    numDff = _DFFnumFinder(circuitBench)
 
     cycle = 0
     elTestVector = LFSRtestGen(circuitBench)
@@ -152,17 +153,62 @@ def getBasicSim(circuit, testApplyCycles, totalCycles, scanType, circuitBench):
         circuit = inputRead(circuit, elTestVector[1])
         p2sim.printCkt(circuit)
         circuit = basic_sim(circuit)
+
         totalCycles += 1
         circuit = reset_Gate_T_F(circuit)  # function to reset all False to true for each gate that is not a DFF
         print("gates being reset to false")
         cycle = cycle + 1
         print("running cycle: " + str(cycle) + "\n")
 
-    # TODO Szymon, add a final function that scans out and updates the totalCycles depending on the typeScan
-
     return circuit, totalCycles
 
+# FUNCTION: storeScanOut
+# Outputs: appends scan out values into a list, that would be used later for comparison
+# Inputs: circuit dictionary
+def storeScanOut(circuit):
+    scanOutputs = []
+    for gate in circuit:
+        if circuit[gate][0] == "DFF":
+            scanOutputs.append(circuit[gate][3])
+    return scanOutputs
 
+# FUNCTION: storePrimaryOutputs
+# Outputs: appends PO into a list, that would be used later for comparison
+# Inputs: circuit dictionary
+def storePrimaryOutputs(circuit):
+
+    outputs = []
+    outputList = circuit["OUTPUTS"][1]
+    for output in outputList:
+        outputs.append(circuit[output][3])
+    return outputs
+
+
+# FUNCTION: outputComparator
+# Boolean Function Outputs:
+    # True: Difference found between circuits so fault found
+    # False: No Diffference Found
+# Inputs: Good & Bad lists, wether it's sequential or scan chain study
+def outputComparator(badList, goodList):
+    
+    # error check to make sure lists are the same length
+    if (len(badList) != len(goodList)):
+        print("The list sizes are different! Cannot compare for fault detection")
+        return -1
+    # goes through each index of the lists and compares
+    listLength = len(badList)
+    for index in range(listLength):
+        if(badList[index] != int(goodList[index]):
+            print("Lists are not the same! Fault has been found! ", badList[index], 
+            " of the bad list != ", goodList[index], " of the good list" )
+            return True
+
+    print("The lists are the same! No Fault has been found")
+    return False
+            
+
+
+# circuit here is dictionary
 def printFFvalues(circuit, file):
     flipFlopNum = 0
     file.write('**********************DFF VALUES**********************')
@@ -173,19 +219,17 @@ def printFFvalues(circuit, file):
             file.write(dFlipFlop)
     file.write('\n******************************************************')
 
+# FUNCTION: printPOValues
+# Inputs: circuit = circuit dictionary; simulatorTxt = name of output file
+# Outputs: writes to simulatorTxt the line output name and its value
 
 def printPOValues(circuit, simulatorTxt):
+
     outputList = circuit["OUTPUTS"][1]
-    # get prim outputs from circuit
-    # go through prim values
-    # print values
     simulatorTxt.write('*****************Primary Output Values*****************')
     for output in outputList:
-        simulatorTxt.write("\n")
-        simulatorTxt.write(output)
-        simulatorTxt.write("\n")
-        simulatorTxt.write(circuit[output][3])
-        simulatorTxt.write('\n')
+        PO_Val = ("\n", output, ":", circuit[output][3])
+        simulatorTxt.write(PO_Val)
     simulatorTxt.write('\n******************************************************')
 
 
