@@ -536,6 +536,22 @@ def plot():
     os.waitpid(plotProcess.pid, 0)
 
 
+def getTestVectorRange(circuit):
+    testVectorWidth = 0
+    for gate in circuit:
+        if circuit[gate][0] == 'DFF':
+            testVectorWidth = testVectorWidth + 1
+
+    for _ in circuit['INPUTS'][1]:
+        testVectorWidth = testVectorWidth + 1
+
+
+    testVectorWidth = testVectorWidth - 1
+    testVectorMin = (-1) * pow(2, testVectorWidth)
+    testVectorMax = pow(2, testVectorWidth) - 1
+
+    return testVectorMin, testVectorMax
+
 # -------------------------------------------------------------------------------------------------------------------- #
 # FUNCTION: Main Function
 def main():
@@ -809,7 +825,7 @@ def main():
                     break
                 else:
                     userFourthChoice = int(userInput)
-                    if (userFourthChoice >= 1 & userFourthChoice <= 3):
+                    if userFourthChoice >= 1 & userFourthChoice <= 3:
                         break
                     else:
                         print("\nChoice not valid. Please enter a valid choice.\n")
@@ -865,20 +881,26 @@ def main():
             circuit_bench = input("Input a circuit benchmark: ")
             # take file name and generate fault list for bench file ; output to terminal as list of numbers
             fault = genFaultList.getFaultList(circuit_bench)
+            circuit_seq = netRead(circuit_bench)
+            testVectorRange = getTestVectorRange(circuit_seq)
             intVal = 0
             while True:
-                print("\nUse 0 as your test vector? Otherwise, select a different integer value ")
+                print("\nUse 0 as your test vector? Otherwise, select a value between " + str(testVectorRange[0]) + " and " + str(testVectorRange[1]) + ":")
                 userInput = input()
                 if userInput == "":
                     print("\nYour integer for your test vector is: ", intVal)
                     break
-                # FIXME make sure it works for negative integers again
                 elif not userInput.isnumeric():
                     print("\nYour input value is not an integer")
-                else:
+                if testVectorRange[0] <= int(userInput) <= testVectorRange[1]:
                     intVal = int(userInput)
                     print("\nYour integer for your test vector is: ", intVal)
                     break
+                else:
+                    print("\nYour input value is not in range")
+
+
+
 
             user_tv_str = testVectorGen(circuit_bench, intVal)  # this will need to be passed to the simulator
 
@@ -890,9 +912,9 @@ def main():
                 if cycleInput == "":
                     print("\nWill simulate for _ test apply cycles = " + str(num_cycles) + "\n")
                     break
-                elif (not cycleInput.isdigit()):
+                elif not cycleInput.isdigit():
                     print("\nYour input value is not an integer or it's less than 0")
-                elif (int(cycleInput) <= 0):
+                elif int(cycleInput) <= 0:
                     print("\nYour input value should be greater than 0")
                 else:
                     print("\nYour input is: ", cycleInput)
