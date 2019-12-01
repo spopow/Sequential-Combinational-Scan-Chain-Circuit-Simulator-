@@ -2,7 +2,7 @@
 
 from math import ceil, floor
 
-from p2sim import netRead, printCkt
+import p2sim
 
 
 # OVERVIEW
@@ -82,7 +82,7 @@ if __name__ == "__main__":
     # let's read the name of bench file
     fileName = "s27.bench"
     testVector = [1, 0, 1]
-    circuit = netRead(fileName)
-    printCkt(circuit)
-    circuit = scanChain(circuit, 'partial', testVector)
+    circuit = p2sim.netRead(fileName)
+    p2sim.printCkt(circuit)
+    circuit = scanChain(circuit, 'partial', testVector, 0)
     print(circuit[1])

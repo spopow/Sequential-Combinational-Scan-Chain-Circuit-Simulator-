@@ -7,7 +7,7 @@ import csv
 import genFaultList
 from TVgen import TestVector_A, TestVector_B, TestVector_C, TestVector_D, TestVector_E, MarsenneTwisterPRTG
 from circuit_sim_result import output_file, printPOValues
-from scan_chain_sim_result import scan_output_file
+
 
 from testVectorUI import inputSizeFinder, twoComptoBinary, testVectorGen
 
@@ -377,6 +377,8 @@ def gateCalc(circuit, node):
 # -------------------------------------------------------------------------------------------------------------------- #
 # FUNCTION: Updating the circuit dictionary with the input line, and also resetting the gates and output lines
 def inputRead(circuit, line):
+    print("DOes it break at line?")
+    print(line)
     # Checking if input bits are enough for the circuit
     if len(line) < circuit["INPUT_WIDTH"][1]:
         return -1
@@ -486,6 +488,7 @@ def plot():
 # -------------------------------------------------------------------------------------------------------------------- #
 # FUNCTION: Main Function
 def main():
+    from scan_chain_sim_result import scan_output_file
     # **************************************************************************************************************** #
     # NOTE: UI code; Does not contain anything about the actual simulation
 
@@ -806,7 +809,7 @@ def main():
             # print file
 
             
-            scan_output_file(circuit_bench, num_cycles, fault, user_tv_str, scanType)
+            scan_output_file(circuit_bench, num_cycles, fault, scanType)
 
         if userThirdChoice == 2:  # sequential circuit simulation
             print("Sequential Circuit Simulation\n")
@@ -852,7 +855,7 @@ def main():
             #  function to simulate clock and incorporate into DFFs for basic_sim already given
             # print file
 
-            scan_output_file(circuit_bench, num_cycles, fault, genTestvectors)
+            output_file(circuit_bench, num_cycles, fault, genTestvectors)
 
 
 if __name__ == "__main__":
