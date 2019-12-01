@@ -160,6 +160,9 @@ def getBasicSim(circuit, testApplyCycles, totalCycles, scanType, circuitBench):
         cycle = cycle + 1
         print("running cycle: " + str(cycle) + "\n")
 
+    scanOutCycles = getScanOutCycles(circuit, scanType)
+    totalCycles = totalCycles + scanOutCycles
+
     return circuit, totalCycles
 
 # FUNCTION: storeScanOut
@@ -351,6 +354,34 @@ def reset_Gate_T_F(circuit):
             circuit[curr][2] = False
             # print("Curr is now: " + str(circuit[curr]) + "\n")
     return circuit
+
+
+def getScanOutCycles(circuit, scanType):
+
+    # Number of scan out cycles
+    scanOut = 0
+
+    if scanType == 'partial' or 'parallel':
+
+        # Counter to keep track of the number of DFFs
+        dffCounter = 0
+
+        # For each gate in the circuit, find the ones that DFFs
+        for gate in circuit:
+            if circuit[gate][0] == 'DFF':
+                dffCounter = dffCounter + 1
+
+        scanOut = int(ceil(dffCounter / 2))
+
+    if scanType == 'full':
+
+        # For each gate in the circuit, find the ones that DFFs
+        for gate in circuit:
+            if circuit[gate][0] == 'DFF':
+                scanOut = scanOut + 1
+
+    return scanOut
+
 
 # If this module is executed alone
 if __name__ == "__main__":
