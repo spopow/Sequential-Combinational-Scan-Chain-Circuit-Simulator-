@@ -19,6 +19,7 @@ def output_file(bench_file, num_cycles, fault, user_tv_str):
     #printCkt(good_circuit)     DEBUG COMMENT
     simulatorTxt.write("******************GOOD CIRCUIT SIM********************\n")
     simulatorTxt.write("Flip Flop & Primary Outputs @ n = " + str(num_cycles) + "\n")
+    simulatorTxt.write("User TV: " + user_tv_str + "\n")
     #simulatorTxt.write("-------------------------------------------------------\n")
     numFlipFlops = getNumFF(bench_file)
     #simulatorTxt.write("D-Type Flip Flops: " + str(numFlipFlops) + "\n")
@@ -31,6 +32,7 @@ def output_file(bench_file, num_cycles, fault, user_tv_str):
     simulatorTxt.write("\n\n\n******************BAD CIRCUIT SIM********************\n")
     simulatorTxt.write("Fault: " + str(fault) + "\n")
     simulatorTxt.write("Flip Flop & Primary Outputs @ n = " + str(num_cycles) + "\n")
+    simulatorTxt.write("User TV: " + user_tv_str + "\n")
     #simulatorTxt.write("---------------------------------------------------------\n")
     #simulatorTxt.write("D-Type Flip Flops: " + str(numFlipFlops) + "\n")
     # call function that prints ff/value
