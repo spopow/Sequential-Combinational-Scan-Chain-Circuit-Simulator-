@@ -201,7 +201,7 @@ def outputComparator(badList, goodList):
     # goes through each index of the lists and compares
     listLength = len(badList)
     for index in range(listLength):
-        if(badList[index] != int(goodList[index]):
+        if badList[index] != goodList[index]:
             print("Lists are not the same! Fault has been found! ", badList[index], 
             " of the bad list != ", goodList[index], " of the good list" )
             return True
