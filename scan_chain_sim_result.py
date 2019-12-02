@@ -82,20 +82,23 @@ def scanFaultDetector(goodScanData, faultScanData, fault, simulatorTxt):
     dataDFF = outputComparator(faultScanData["DFF"], goodScanData["DFF"])
     compOut = ''
     # number of cycles it takes to find given fault given on the index of primary outputs it took to detect
-    PO_cycles = len(goodScanData["DFF"][0]) * (dataPO[1] - 1) + dataPO[1] 
-    # number of cycles it takes to find given fault given on the index of scan out it took to detect
-    DFF_cycles = len(goodScanData["DFF"][0]) * dataDFF[1] + dataDFF[1]
+    # number of DFFs * test apply cycles + test apply cycles
+    PO_cycles = len(goodScanData["DFF"][0]) * dataPO[1] + dataPO[1] 
 
+    # number of cycles it takes to find given fault given on the index of scan out it took to detect
+    # (i.e. number of DFFs * test apply cycle found + test apply cycles + number of DFFs to scan out)
+    DFF_cycles = len(goodScanData["DFF"][0]) * dataDFF[1] + dataDFF[1] + len(goodScanData["DFF"][0])
+
+    
     if dataPO[0] and PO_cycles < DFF_cycles:
-        compOut = "\n" + fault + " has been detected at cycle " + str(PO_cycles) 
+        compOut = "\n" + fault + " has been detected at cycle " + str(PO_cycles) + " and at Test Apply Cycle: "+ str(dataPO[1])
         simulatorTxt.write(compOut)
     elif dataDFF[0] and DFF_cycles < PO_cycles:
-        compOut = "\n" + fault + " has been detected at cycle " + str(DFF_cycles) 
+        compOut = "\n" + fault + " has been detected at cycle " + str(DFF_cycles)  + " and at Test Apply Cycle: "+ str(dataDFF[1])
         simulatorTxt.write(compOut)
     else:
         compOut = "\n" + fault + " has NOT been detected \n"
         simulatorTxt.write(compOut)
-
 
 
 
