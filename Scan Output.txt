@@ -1,40 +1,40 @@
 ******************GOOD CIRCUIT SIM********************
-Flip Flop & Primary Outputs @ n = 471
+Flip Flop & Primary Outputs @ n = 141
 D-Type Flip Flops: 21
 **********************DFF VALUES**********************
  DFF_0: 1 
- DFF_1: 1 
+ DFF_1: 0 
  DFF_2: 0 
  DFF_3: 0 
- DFF_4: 0 
- DFF_5: 1 
+ DFF_4: 1 
+ DFF_5: 0 
  DFF_6: 0 
  DFF_7: 1 
  DFF_8: 0 
  DFF_9: 0 
- DFF_10: 0 
+ DFF_10: 1 
  DFF_11: 0 
- DFF_12: 0 
+ DFF_12: 1 
  DFF_13: 0 
  DFF_14: 0 
  DFF_15: 0 
  DFF_16: 0 
- DFF_17: 0 
+ DFF_17: 1 
  DFF_18: 0 
- DFF_19: 0 
+ DFF_19: 1 
  DFF_20: 1 
 ******************************************************
 Primary Outputs: 6
 *****************Primary Output Values*****************
-wire_G198:0
-wire_G213:1
-wire_G147:0
+wire_G198:1
+wire_G213:0
+wire_G147:1
 wire_G199:1
 wire_G214:0
-wire_G148:0
+wire_G148:1
 ******************BAD CIRCUIT SIM********************
-Fault: G49-SA-1
-Flip Flop & Primary Outputs @ n = 471
+Fault: G11-SA-1
+Flip Flop & Primary Outputs @ n = 141
 *****************************************************
 D-Type Flip Flops: 21
 **********************DFF VALUES**********************
@@ -42,32 +42,32 @@ D-Type Flip Flops: 21
  DFF_1: 1 
  DFF_2: 0 
  DFF_3: 0 
- DFF_4: 0 
- DFF_5: 1 
+ DFF_4: 1 
+ DFF_5: 0 
  DFF_6: 0 
  DFF_7: 1 
  DFF_8: 0 
  DFF_9: 0 
- DFF_10: 0 
+ DFF_10: 1 
  DFF_11: 0 
- DFF_12: 0 
+ DFF_12: 1 
  DFF_13: 0 
  DFF_14: 0 
  DFF_15: 0 
  DFF_16: 0 
- DFF_17: 0 
+ DFF_17: 1 
  DFF_18: 0 
- DFF_19: 0 
+ DFF_19: 1 
  DFF_20: 1 
 ******************************************************
 Primary Outputs: 6
 *****************Primary Output Values*****************
-wire_G198:0
-wire_G213:1
-wire_G147:0
+wire_G198:1
+wire_G213:0
+wire_G147:1
 wire_G199:1
 wire_G214:0
-wire_G148:0
+wire_G148:1
 ******************FAULT DETECTION********************
 
-G49-SA-1 has been detected at cycle 43
+G11-SA-1 has been detected at cycle 22 and at Test Apply Cycle: 1
