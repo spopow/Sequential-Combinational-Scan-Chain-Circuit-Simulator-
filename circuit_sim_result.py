@@ -95,8 +95,9 @@ def getBasicSim(circuit, total_cycles, user_tv_str, Fault_bool, fault):
         circuit = reset_Gate_T_F(circuit)  # resets all except dff's/PIs
         #print("gates being reset to false")
         cycle = cycle + 1
-        print("running cycle: " + str(cycle) + "\n")
-    print("done with basic sim w Fault= " + str(Fault_bool) + "\n")
+        print("Running Cycle: " + str(cycle) + "\n")
+
+    print("Done with basic sim with Fault = " + str(Fault_bool) + "\n")
     if Fault_bool:
         return circuit, badList
     else:
