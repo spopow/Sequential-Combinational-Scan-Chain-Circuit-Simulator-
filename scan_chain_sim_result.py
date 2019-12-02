@@ -2,6 +2,7 @@ import copy
 import scan_chain
 import p2sim
 import random
+import math
 
 
 # input t,n,f
@@ -12,7 +13,11 @@ import random
 def scan_output_file(bench_file, testApplyCycles, fault, scanType):
     from p2sim import netRead, printCkt
 
-    totalCycles = 0
+    goodScanData = {}
+    faultScanData = {}
+
+
+    scanInTV, PrimaryInputs = LFSRtestGen(bench_file, testApplyCycles)
 
     # Text file that will hold all the results
     simulatorTxt = open("Scan Output.txt", "w+")
@@ -21,40 +26,82 @@ def scan_output_file(bench_file, testApplyCycles, fault, scanType):
     circuit = netRead(bench_file)
 
     # Run circuit simulation to generate the results of the good circuit
-    good_circuit, totalCycles = getBasicSim(circuit, testApplyCycles, totalCycles, scanType, bench_file)
+    goodScanData = getBasicSim(circuit, testApplyCycles, 0, scanType, bench_file, False, fault, scanInTV, PrimaryInputs)
 
+    
     # Print the final results of the golden circuit
-    printCkt(good_circuit)
+    #printCkt(good_circuit)
 
     # Write into the text file that will hold all the results
     simulatorTxt.write("******************GOOD CIRCUIT SIM********************\n")
-    simulatorTxt.write("Flip Flop & Primary Outputs @ n = " + str(totalCycles) + "\n")
-    simulatorTxt.write("******************************************************\n")
-
+    
+    simulatorTxt.write("Flip Flop & Primary Outputs @ n = " + str(goodScanData["totalCycles"]) + "\n")
+    
     # Get the number of flip flops in the circuit
     numFlipFlops = getNumFF(bench_file)
 
     simulatorTxt.write("D-Type Flip Flops: " + numFlipFlops + "\n")
-    printFFvalues(good_circuit, simulatorTxt)
+    printFFvalues(goodScanData["circuit"], simulatorTxt)
 
-    # Get number of primary outputs
+    # Get number of primary outputs and print them to file
     numPrimOutputs = getNumPrimaryOutputs(bench_file)
 
     simulatorTxt.write("\nPrimary Outputs: " + str(numPrimOutputs) + "\n")
 
-    printPOValues(good_circuit, simulatorTxt)
+    printPOValues(goodScanData["circuit"], simulatorTxt)
 
+    faultScanData = getBasicSim(circuit, testApplyCycles, 0, scanType, bench_file, True, fault, scanInTV, PrimaryInputs)
     # badCircuit = getFaultCvgSeq(circuit, fault, num_cycles)  # make circuit with fault and update values - JAS TD
     simulatorTxt.write("\n******************BAD CIRCUIT SIM********************\n")
     simulatorTxt.write("Fault: " + str(fault) + "\n")
-    simulatorTxt.write("Flip Flop & Primary Outputs @ n = " + str(totalCycles) + "\n")
+    simulatorTxt.write("Flip Flop & Primary Outputs @ n = " + str(faultScanData["totalCycles"]) + "\n")
     simulatorTxt.write("*****************************************************\n")
     simulatorTxt.write("D-Type Flip Flops: " + numFlipFlops + "\n")
     # call function that prints ff/value
-    printFFvalues(circuit, simulatorTxt)
+    printFFvalues(faultScanData["circuit"], simulatorTxt)
     simulatorTxt.write("\nPrimary Outputs: " + str(numPrimOutputs) + "\n")
-    simulatorTxt.write("-----------------------------\n")
+    printPOValues(faultScanData["circuit"], simulatorTxt)
+
+    simulatorTxt.write("\n******************FAULT DETECTION********************\n")
+    scanFaultDetector(goodScanData, faultScanData, fault, simulatorTxt)
+    
+    # if (outputComparator(faultScanData["PrimaryOutputs"], goodScanData["PrimaryOutputs"])[0]):
+    #     compOut = "\n" + fault + " has been detected at cycle " + str(outputComparator(badList, goodList)[1]) + " with test vector " + user_tv_str + "\n"
+    #     simulatorTxt.write(compOut)
+    # else:
+    #     compOut = "\n" + fault + " has NOT been detected with test vector " + user_tv_str + "\n"
+    #     simulatorTxt.write(compOut)
+
     simulatorTxt.close()
+
+
+# Wrapper function to output the cycle number the fault was found
+
+def scanFaultDetector(goodScanData, faultScanData, fault, simulatorTxt):
+    dataPO = outputComparator(faultScanData["PrimaryOutputs"], goodScanData["PrimaryOutputs"])
+    dataDFF = outputComparator(faultScanData["DFF"], goodScanData["DFF"])
+    compOut = ''
+    # number of cycles it takes to find given fault given on the index of primary outputs it took to detect
+    # number of DFFs * test apply cycles + test apply cycles
+    PO_cycles = len(goodScanData["DFF"][0]) * dataPO[1] + dataPO[1] 
+
+    # number of cycles it takes to find given fault given on the index of scan out it took to detect
+    # (i.e. number of DFFs * test apply cycle found + test apply cycles + number of DFFs to scan out)
+    DFF_cycles = len(goodScanData["DFF"][0]) * dataDFF[1] + dataDFF[1] + len(goodScanData["DFF"][0])
+
+    
+    if dataPO[0] and PO_cycles < DFF_cycles:
+        compOut = "\n" + fault + " has been detected at cycle " + str(PO_cycles) + " and at Test Apply Cycle: "+ str(dataPO[1])
+        simulatorTxt.write(compOut)
+    elif dataDFF[0] and DFF_cycles < PO_cycles:
+        compOut = "\n" + fault + " has been detected at cycle " + str(DFF_cycles)  + " and at Test Apply Cycle: "+ str(dataDFF[1])
+        simulatorTxt.write(compOut)
+    else:
+        compOut = "\n" + fault + " has NOT been detected \n"
+        simulatorTxt.write(compOut)
+
+
+
 
 
 def inputSizeFinder(circuit):
@@ -77,8 +124,9 @@ def inputSizeFinder(circuit):
 
 
 # Pass in circuit benchmark
-def LFSRtestGen(circuit):
-    lineOfPI = ''
+# FIXME rename to scanInTVgen
+def LFSRtestGen(circuit, testApplyCycles):
+    lineOfPI = []
     listDFF = []
     outVect = ''
     #vector Size is the num PI and the num DFF
@@ -87,14 +135,17 @@ def LFSRtestGen(circuit):
     vectDFF = _DFFnumFinder(circuit)
 
     #for how many test cycles, we create that many randomly generated test vectors
-    #listPI needs to return a string
-    outVect = random.randint(0, 2**(vectPI - 1))
-    outVect = format(outVect, '0'+str(vectPI)+'b')
-    lineOfPI = outVect
-    #listDFF needs to return list of single bit strings
-    outVect = random.randint(0, 2**(vectDFF - 1))
-    outVect = format(outVect, '0'+str(vectDFF)+'b')
-    listDFF = list(outVect)
+    
+    for x in range(testApplyCycles):
+
+        #listPI needs to return a list of strings
+        outVect = random.randint(0, (2**(vectPI)-1))
+        outVect = format(outVect, '0'+str(vectPI)+'b')
+        lineOfPI.append(outVect)
+        #listDFF needs to return list of lists of single bit strings
+        outVect = random.randint(0, (2**(vectDFF)-1))
+        outVect = format(outVect, '0'+str(vectDFF)+'b')
+        listDFF.append(list(outVect))
 
     #returning a tuple
     return listDFF, lineOfPI
@@ -127,48 +178,69 @@ def getNumPrimaryOutputs(bench_file):
     benchFile = open(bench_file, "r")
     # get line: "1 outputs"
     for line in benchFile:
-        if "outputs" in line:
+        if "OUTPUT" in line:
             numOutputs = numOutputs + 1
     return numOutputs
 
 
 #requires the circuit as an object
-def getBasicSim(circuit, testApplyCycles, totalCycles, scanType, circuitBench):
-    print("stuck at get basic sim\n")
-    from p2sim import basic_sim, inputRead, printCkt
-    numDff = _DFFnumFinder(circuitBench)
+def getBasicSim(circuit, testApplyCycles, totalCycles, scanType, circuitBench, Fault_bool, fault, scanInTV, PrimaryInputs):
+    from p2sim import basic_sim, inputRead
+    from circuit_sim_result import getFaultCircuit
+
+    scanData = {
+        "circuit": {},                          #circuit dictionary
+        "DFF": [],                              #list of DFF outputs
+        "PrimaryOutputs":  [],                  #primary output values
+        "totalCycles": totalCycles,             #number of total cycles
+        "scanInTV": scanInTV,                   #scan in test vector
+        "PrimaryInputs": PrimaryInputs         #Primary Input test vector   
+    }
 
     cycle = 0
-    elTestVector = LFSRtestGen(circuitBench)
+    
     while cycle < testApplyCycles:
-        # Update scan chain with incoming testvectors
-        # this one gets the DFFs
 
-        circuit, totalCycles = scan_chain.scanChain(circuit, scanType, elTestVector[0], totalCycles)
-        printCkt(circuit)
+        # Update Scan with desired test vector in DFF (i.e SCAN IN)
+        circuit, totalCycles = scan_chain.scanChain(circuit, scanType, scanData["scanInTV"][cycle], totalCycles)
 
-        # Update input values
-        #this one gets the PO Values
+        # Update Input Values 
+        circuit = inputRead(circuit, scanData["PrimaryInputs"][cycle])
+
+        # Set the Fault line to True 
+        if Fault_bool:
+            circuit = getFaultCircuit(circuit, fault)
         
-        circuit = inputRead(circuit, elTestVector[1])
-        p2sim.printCkt(circuit)
-        circuit = basic_sim(circuit)
+        # Simulates circuit provided faults or 8not (i.e. TEST APPLY)
+        circuit = basic_sim(circuit, Fault_bool, fault)
+        
+        # collect list of scan out data to dictionary
+        scanData["DFF"].append(storeScanOut(circuit, scanData["DFF"]))
+        
+        # collect list of test apply data to dictionary
+        scanData["PrimaryOutputs"].append(storePrimaryOutputs(circuit, scanData["PrimaryOutputs"]))
 
         totalCycles += 1
-        circuit = reset_Gate_T_F(circuit)  # function to reset all False to true for each gate that is not a DFF
-        print("gates being reset to false")
+
+        # function to reset all False to true for each gate that is not a DFF
+        circuit = reset_Gate_T_F(circuit)  
+       
         cycle = cycle + 1
-        print("running cycle: " + str(cycle) + "\n")
+        print("Running Cycle: " + str(cycle) + "\n")
 
     scanOutCycles = getScanOutCycles(circuit, scanType)
-    totalCycles = totalCycles + scanOutCycles
+    totalCycles = totalCycles + scanOutCycles - 1
 
-    return circuit, totalCycles
+    # update circuit in the dictionary
+    scanData["circuit"] = circuit
+    scanData["totalCycles"] = totalCycles
+
+    return scanData
 
 # FUNCTION: storeScanOut
 # Outputs: appends scan out values into a list, that would be used later for comparison
 # Inputs: circuit dictionary
-def storeScanOut(circuit):
+def storeScanOut(circuit, someList):
     scanOutputs = []
     for gate in circuit:
         if circuit[gate][0] == "DFF":
@@ -178,8 +250,7 @@ def storeScanOut(circuit):
 # FUNCTION: storePrimaryOutputs
 # Outputs: appends PO into a list, that would be used later for comparison
 # Inputs: circuit dictionary
-def storePrimaryOutputs(circuit):
-
+def storePrimaryOutputs(circuit, someList):
     outputs = []
     outputList = circuit["OUTPUTS"][1]
     for output in outputList:
@@ -192,6 +263,7 @@ def storePrimaryOutputs(circuit):
     # True: Difference found between circuits so fault found
     # False: No Diffference Found
 # Inputs: Good & Bad lists, wether it's sequential or scan chain study
+# FIXME CHECK IF WORKS FOR OTHER SIMULATORS
 def outputComparator(badList, goodList):
     
     # error check to make sure lists are the same length
@@ -200,14 +272,19 @@ def outputComparator(badList, goodList):
         return -1
     # goes through each index of the lists and compares
     listLength = len(badList)
-    for index in range(listLength):
-        if badList[index] != goodList[index]:
-            print("Lists are not the same! Fault has been found! ", badList[index], 
-            " of the bad list != ", goodList[index], " of the good list" )
-            return True
+    PO_Length = len(badList[0])
 
-    print("The lists are the same! No Fault has been found")
-    return False
+    for index in range(listLength):
+        for vctrIndex in range(PO_Length):
+            if badList[index][vctrIndex] != goodList[index][vctrIndex] and (badList[index][vctrIndex] != 'U' or goodList[index][vctrIndex] != 'U'):
+                index = index + 1
+                # Debugger
+                # print("Lists are not the same! Fault has been detected! ", badList[index-1], 
+                # " of the bad list != ", goodList[index-1], " of the good list at cycle ", index )
+                return True, index
+
+    return False, index+1
+
             
 
 
@@ -231,9 +308,8 @@ def printPOValues(circuit, simulatorTxt):
     outputList = circuit["OUTPUTS"][1]
     simulatorTxt.write('*****************Primary Output Values*****************')
     for output in outputList:
-        PO_Val = ("\n", output, ":", circuit[output][3])
-        simulatorTxt.write(PO_Val)
-    simulatorTxt.write('\n******************************************************')
+        PrimaryOutputs = "\n" + output + ":" + circuit[output][3]
+        simulatorTxt.write(PrimaryOutputs)
 
 
 def getFaultCvgSeq(circuit, fault, total_cycles, fileIndex=None, faults=None):
@@ -348,7 +424,7 @@ def reset_Gate_T_F(circuit):
     # print("stuck at resetting gates\n")
     from p2sim import printCkt
     for curr in circuit:
-        print("Curr is:" + str(circuit[curr]))
+        #print("Curr is:" + str(circuit[curr]))
         currLen = len(circuit[curr])
         if currLen == 4 and circuit[curr][0] != 'DFF' and circuit[curr][0] != 'INPUT':
             circuit[curr][2] = False
@@ -371,7 +447,7 @@ def getScanOutCycles(circuit, scanType):
             if circuit[gate][0] == 'DFF':
                 dffCounter = dffCounter + 1
 
-        scanOut = int(ceil(dffCounter / 2))
+        scanOut = math.ceil(dffCounter / 2)
 
     if scanType == 'full':
 
@@ -390,6 +466,6 @@ if __name__ == "__main__":
     testVector = [1, 0, 1]
     circuit = p2sim.netRead(fileName)
     #create own tuple testvestor
-    p2sim.printCkt(circuit)
-    print(circuit)
+    #p2sim.printCkt(circuit)
+    #print(circuit)
     #circuit = getBasicSim(circuit, 5, 0, "full", fileName)

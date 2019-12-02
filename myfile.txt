@@ -164,7 +164,7 @@
         "0"
     ],
     "wire_G9": [
-        "NAND",
+        "NAND"
         [
             "wire_G16",
             "wire_G15"

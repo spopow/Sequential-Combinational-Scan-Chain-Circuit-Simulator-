@@ -5,7 +5,7 @@ import os
 import subprocess
 import csv
 import genFaultList
-from TVgen import TestVector_A, TestVector_B, TestVector_C, TestVector_D, TestVector_E, MarsenneTwisterPRTG
+from TVgen import TestVector_E, MersenneTwisterPRTG
 from circuit_sim_result import output_file, printPOValues
 
 from testVectorUI import inputSizeFinder, twoComptoBinary, testVectorGen
@@ -474,7 +474,7 @@ def basic_sim(circuit, Fault_bool, fault):
             #printCkt(circuit)     DEBUG COMMENT
             # ERROR Detection if LOGIC does not exist
             if isinstance(circuit, str):
-                print(circuit)
+                #print(circuit)
                 return circuit
         else:
             # If the terminals have not been accessed yet, append the current node at the end of the queue
@@ -535,6 +535,22 @@ def plot():
     plotProcess = subprocess.Popen("gnuplot p2plot.gpl", shell=True)
     os.waitpid(plotProcess.pid, 0)
 
+
+def getTestVectorRange(circuit):
+    testVectorWidth = 0
+    for gate in circuit:
+        if circuit[gate][0] == 'DFF':
+            testVectorWidth = testVectorWidth + 1
+
+    for _ in circuit['INPUTS'][1]:
+        testVectorWidth = testVectorWidth + 1
+
+
+    testVectorWidth = testVectorWidth - 1
+    testVectorMin = (-1) * pow(2, testVectorWidth)
+    testVectorMax = pow(2, testVectorWidth) - 1
+
+    return testVectorMin, testVectorMax
 
 # -------------------------------------------------------------------------------------------------------------------- #
 # FUNCTION: Main Function
@@ -611,14 +627,14 @@ def main():
                         print("\nERROR: Value not within range.\n")
 
             print("\ninput file: circ.bench")
-            print("ouptut files: TV_E.txt, MarsenneTwisterPRTG.txt")
+            print("ouptut files: TV_E.txt, MersenneTwisterPRTG.txt")
 
             print("\nProcessing...\n")
 
             print("done\nTV_E...", end=""),
             TestVector_E(circuit["INPUT_WIDTH"][1], seedVal)
-            print("done\nMarsenneTwisterPRTG...", end=""),
-            MarsenneTwisterPRTG(circuit["INPUT_WIDTH"][1])
+            print("done\nMersenneTwisterPRTG...", end=""),
+            MersenneTwisterPRTG(circuit["INPUT_WIDTH"][1])
             print("done\n\nDone.")
 
         elif userSecondChoice == 2:
@@ -644,7 +660,7 @@ def main():
             temp.write(json.dumps(faults, indent=4))
             temp.close()
 
-            print("\ninput files: circ.bench, TV_E.txt, MarsenneTwisterPRTG.txt")
+            print("\ninput files: circ.bench, TV_E.txt, MersenneTwisterPRTG.txt")
             print("output file: f_cvg.csv")
 
             print("\nProcessing...\n")
@@ -653,7 +669,7 @@ def main():
 
             inputFiles = []
             inputFiles.append(open("TV_E.txt", "r"))
-            inputFiles.append(open("MarsenneTwisterPRTG.txt", "r"))
+            inputFiles.append(open("MersenneTwisterPRTG.txt", "r"))
 
             totalFaults = len(faults)
             totalDetected = [0, 0]
@@ -661,7 +677,7 @@ def main():
             csvFile = open("f_cvg.csv", "w")
 
             writer = csv.writer(csvFile)
-            writer.writerow(["Batch #", "E", "MarsenneTwisterPRTG", "batch size = " + str(batchSize)])
+            writer.writerow(["Batch #", "E", "MersenneTwisterPRTG", "batch size = " + str(batchSize)])
 
             # Runs the simulator for each line of the input file
             for batch in range(25):
@@ -810,7 +826,7 @@ def main():
                     break
                 else:
                     userFourthChoice = int(userInput)
-                    if (userFourthChoice >= 1 & userFourthChoice <= 3):
+                    if userFourthChoice >= 1 & userFourthChoice <= 3:
                         break
                     else:
                         print("\nChoice not valid. Please enter a valid choice.\n")
@@ -866,20 +882,26 @@ def main():
             circuit_bench = input("Input a circuit benchmark: ")
             # take file name and generate fault list for bench file ; output to terminal as list of numbers
             fault = genFaultList.getFaultList(circuit_bench)
+            circuit_seq = netRead(circuit_bench)
+            testVectorRange = getTestVectorRange(circuit_seq)
             intVal = 0
             while True:
-                print("\nUse 0 as your test vector? Otherwise, select a different integer value ")
+                print("\nUse 0 as your test vector? Otherwise, select a value between " + str(testVectorRange[0]) + " and " + str(testVectorRange[1]) + ":")
                 userInput = input()
                 if userInput == "":
                     print("\nYour integer for your test vector is: ", intVal)
                     break
-                # FIXME make sure it works for negative integers again
                 elif not userInput.isnumeric():
                     print("\nYour input value is not an integer")
-                else:
+                if testVectorRange[0] <= int(userInput) <= testVectorRange[1]:
                     intVal = int(userInput)
                     print("\nYour integer for your test vector is: ", intVal)
                     break
+                else:
+                    print("\nYour input value is not in range")
+
+
+
 
             user_tv_str = testVectorGen(circuit_bench, intVal)  # this will need to be passed to the simulator
 
@@ -891,9 +913,9 @@ def main():
                 if cycleInput == "":
                     print("\nWill simulate for _ test apply cycles = " + str(num_cycles) + "\n")
                     break
-                elif (not cycleInput.isdigit()):
+                elif not cycleInput.isdigit():
                     print("\nYour input value is not an integer or it's less than 0")
-                elif (int(cycleInput) <= 0):
+                elif int(cycleInput) <= 0:
                     print("\nYour input value should be greater than 0")
                 else:
                     print("\nYour input is: ", cycleInput)

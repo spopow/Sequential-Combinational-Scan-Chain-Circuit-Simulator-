@@ -1,0 +1,21 @@
+******************GOOD CIRCUIT SIM********************
+Flip Flop & Primary Outputs @ n = 5
+---------------------DFF VALUES-------------------------
+ DFF_0: 0 
+ DFF_1: U 
+ DFF_2: U 
+-----------------Primary Output Values-----------------
+wire_G17: U
+******************BAD CIRCUIT SIM********************
+Fault: G8-IN-G6-SA-1
+Flip Flop & Primary Outputs @ n = 5
+
+******************FAULT DETECTION********************
+
+G8-IN-G6-SA-1 has NOT been detected with test vector 0000
+---------------------DFF VALUES-------------------------
+ DFF_0: 0 
+ DFF_1: U 
+ DFF_2: U 
+-----------------Primary Output Values-----------------
+wire_G17: U

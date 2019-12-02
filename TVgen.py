@@ -201,9 +201,9 @@ def TestVector_E(inputSize, startSeed):
         outVect = ''
 
 
-def MarsenneTwisterPRTG(inputSize):
+def MersenneTwisterPRTG(inputSize):
     outVect = ''
-    outputName = "MarsenneTwisterPRTG.txt"
+    outputName = "MersenneTwisterPRTG.txt"
 
     outputFile = open(outputName, "w")
    

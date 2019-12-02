@@ -11,13 +11,18 @@ import json
 
 def output_file(bench_file, num_cycles, fault, user_tv_str):
     from p2sim import netRead, printCkt
+    from scan_chain_sim_result import outputComparator
+    goodList = []
+    badList = []
+
     simulatorTxt = open("simulator.txt", "w+")
     circuit = netRead(bench_file)  # create original circuit
     clean_circuit = netRead(bench_file)
     Fault_bool = False
 
     # create circuit and update values
-    good_circuit = getBasicSim(circuit, num_cycles, user_tv_str, Fault_bool, fault)
+    good_circuit = getBasicSim(circuit, num_cycles, user_tv_str, Fault_bool, fault)[0]
+    goodList = getBasicSim(circuit, num_cycles, user_tv_str, Fault_bool, fault)[1]
     #printCkt(good_circuit)     DEBUG COMMENT
     simulatorTxt.write("******************GOOD CIRCUIT SIM********************\n")
     simulatorTxt.write("Flip Flop & Primary Outputs @ n = " + str(num_cycles) + "\n")
@@ -30,11 +35,20 @@ def output_file(bench_file, num_cycles, fault, user_tv_str):
     #simulatorTxt.write("\nPrimary Outputs: " + str(numPrimOutputs) + "\n")
     printPOValues(good_circuit, simulatorTxt)  # call function that prints PO value - SZYMON TO-DO
     Fault_bool = True
-    badCircuit = getBasicSim(clean_circuit, num_cycles, user_tv_str, Fault_bool, fault)
-    simulatorTxt.write("\n\n\n******************BAD CIRCUIT SIM********************\n")
+    badCircuit = getBasicSim(clean_circuit, num_cycles, user_tv_str, Fault_bool, fault)[0]  # make circuit with fault and update values
+    badList = getBasicSim(clean_circuit, num_cycles, user_tv_str, Fault_bool, fault)[1]
+    #print(outputComparator(badList, goodlist))
+   
+    simulatorTxt.write("\n******************BAD CIRCUIT SIM********************\n")
     simulatorTxt.write("Fault: " + str(fault) + "\n")
     simulatorTxt.write("Flip Flop & Primary Outputs @ n = " + str(num_cycles) + "\n")
-    simulatorTxt.write("User TV: " + user_tv_str + "\n")
+    simulatorTxt.write("\n******************FAULT DETECTION********************\n")
+    if (outputComparator(badList, goodList)[0]):
+        compOut = "\n" + fault + " has been detected at cycle " + str(outputComparator(badList, goodList)[1]) + " with test vector " + user_tv_str + "\n"
+        simulatorTxt.write(compOut)
+    else:
+        compOut = "\n" + fault + " has NOT been detected with test vector " + user_tv_str + "\n"
+        simulatorTxt.write(compOut)
     #simulatorTxt.write("---------------------------------------------------------\n")
     #simulatorTxt.write("D-Type Flip Flops: " + str(numFlipFlops) + "\n")
     # call function that prints ff/value
@@ -64,23 +78,33 @@ def getNumPrimaryOutputs(bench_file):
 
 
 def getBasicSim(circuit, total_cycles, user_tv_str, Fault_bool, fault):
-    from p2sim import printCkt
     #print("stuck at get basic sim\n")
     from p2sim import basic_sim, inputRead
+    from scan_chain_sim_result import storePrimaryOutputs
     circuit = inputRead(circuit, user_tv_str)
     cycle = 0
+    badList = []
+    goodList = []
+    
     while cycle < total_cycles:
         if Fault_bool:
             #print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n")   DEBUG COMMENT
             circuit = getFaultCircuit(circuit, fault)  # sets fault line = true
         circuit = basic_sim(circuit, Fault_bool, fault)
+        if Fault_bool:
+            badList.append(storePrimaryOutputs(circuit, badList))
+        else:
+            goodList.append(storePrimaryOutputs(circuit, goodList))
         circuit = reset_Gate_T_F(circuit)  # resets all except dff's/PIs
         #print("gates being reset to false")
         cycle = cycle + 1
-        #print("running cycle: " + str(cycle) + "\n")
-    #print("done with basic sim w Fault= " + str(Fault_bool) + "\n")
-    #printCkt(circuit)                   DEBUG COMMENT
-    return circuit
+        print("Running Cycle: " + str(cycle) + "\n")
+
+    print("Done with basic sim with Fault = " + str(Fault_bool) + "\n")
+    if Fault_bool:
+        return circuit, badList
+    else:
+        return circuit, goodList
 
 
 def getFaultCircuit(circuit, fault):
