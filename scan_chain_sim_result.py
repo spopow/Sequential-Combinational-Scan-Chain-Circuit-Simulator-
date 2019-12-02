@@ -124,6 +124,7 @@ def inputSizeFinder(circuit):
 
 
 # Pass in circuit benchmark
+# FIXME rename to scanInTVgen
 def LFSRtestGen(circuit, testApplyCycles):
     lineOfPI = []
     listDFF = []
@@ -135,15 +136,14 @@ def LFSRtestGen(circuit, testApplyCycles):
 
     #for how many test cycles, we create that many randomly generated test vectors
     
-      
     for x in range(testApplyCycles):
 
         #listPI needs to return a list of strings
-        outVect = random.randint(0, 2**(vectPI - 1))
+        outVect = random.randint(0, (2**(vectPI)-1))
         outVect = format(outVect, '0'+str(vectPI)+'b')
         lineOfPI.append(outVect)
         #listDFF needs to return list of lists of single bit strings
-        outVect = random.randint(0, 2**(vectDFF - 1))
+        outVect = random.randint(0, (2**(vectDFF)-1))
         outVect = format(outVect, '0'+str(vectDFF)+'b')
         listDFF.append(list(outVect))
 

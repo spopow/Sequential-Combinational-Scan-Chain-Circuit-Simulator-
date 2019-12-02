@@ -201,14 +201,14 @@ def TestVector_E(inputSize, startSeed):
         outVect = ''
 
 
-def MarsenneTwisterPRTG(inputSize):
+def MersenneTwisterPRTG(inputSize):
     outVect = ''
-    outputName = "MarsenneTwisterPRTG.txt"
+    outputName = "MersenneTwisterPRTG.txt"
 
     outputFile = open(outputName,"w")
    
     for x in range(255):
-        outVect = random.randint(0, 2**(inputSize -1))
+        outVect = random.randint(0, (2**(inputSize)-1))
         outVect = format(outVect, '0'+str(inputSize)+'b')
         outputFile.write(outVect + '\n')
 
