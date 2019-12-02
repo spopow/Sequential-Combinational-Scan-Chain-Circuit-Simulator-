@@ -552,6 +552,7 @@ def main():
         userChoice = 0
         print("\nChoose what type of circuit you will be working with (1 or 2): ")
         print("1: Combinational Circuit Case Study")
+        # FIXME TODO add option for circuit bench for combinational
         print("2: Sequential Circuit")
         userInput = input()
         if userInput == "":

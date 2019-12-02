@@ -1,5 +1,7 @@
 import math
 import copy
+import csv
+
 from testVectorUI import testVectorGen
 import json
 # input t,n,f
@@ -165,3 +167,40 @@ def fault_processing(fault):
 
     return data
 
+
+def seq_data_analysis(fault_list, original_circuit, bench, cycles):
+    from scan_chain_sim_result import LFSRtestGen
+    first_line_csv = ['Initialization ->', 'FF=U', 'FF=1', 'FF=0']
+    with open('seq_simulator_analysis.csv', 'w') as csvFile:
+        writer = csv.writer(csvFile)
+        writer.writerow(first_line_csv)
+    num_faults = 0
+    Fault_bool = True
+    total_num_faults = len(fault_list)
+    # generate total_num_faults mersenne tvs and return list of it
+    _, input_TVs = LFSRtestGen(bench,total_num_faults)
+    num_fault = 0
+    while num_fault < total_num_faults:
+        column = 0
+        while column < 3:
+            print("column #:" + str(column) + "\n")
+            # doing initialization for corresponding circuits
+            circuit_u = original_circuit
+            #circuit_one = ff_init_one(original_circuit)
+            #circuit_zero = ff_init_zero(original_circuit)
+
+            #call getBasicSim for each
+            circuit_u = getBasicSim(circuit_u, cycles, tv_str, Fault_bool, fault_list[num_fault])
+
+        num_fault += 1
+
+
+
+
+def ff_init_one(circuit):
+
+    return circuit
+
+def ff_init_zero(circuit):
+
+    return circuit
