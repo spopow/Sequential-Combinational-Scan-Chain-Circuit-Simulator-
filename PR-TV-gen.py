@@ -216,11 +216,10 @@ def TestVector_E(inputSize, startSeed):
         #Writes and resets for the next output
         outputFile.write(outVect + '\n')
         outVect = ''
-
-# FIXME spell check - rename to mersenneTwisterPRTG
-def MarsenneTwisterPRTG(inputSize):
+            
+def MersenneTwisterPRTG(inputSize):
     outVect = ''
-    outputName = "MarsenneTwisterPRTG.txt"
+    outputName = "MersenneTwisterPRTG.txt"
 
     outputFile = open(outputName,"w")
    
@@ -310,7 +309,7 @@ def main():
     TestVector_E(inputSize, seedVal)
     # TestVector_D(inputSize, seedVal)
     # TestVector_C(inputSize, seedVal)
-    MarsenneTwisterPRTG(inputSize)
+    
     print(LFSRtestGen(cktFile, 5)[0])
     # print(LFSRtestGen(cktFile, 5)[1])
 

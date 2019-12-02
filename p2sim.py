@@ -5,7 +5,7 @@ import os
 import subprocess
 import csv
 import genFaultList
-from TVgen import TestVector_A, TestVector_B, TestVector_C, TestVector_D, TestVector_E, MarsenneTwisterPRTG
+from TVgen import TestVector_E, MersenneTwisterPRTG
 from circuit_sim_result import output_file, printPOValues
 
 from testVectorUI import inputSizeFinder, twoComptoBinary, testVectorGen
@@ -626,14 +626,14 @@ def main():
                         print("\nERROR: Value not within range.\n")
 
             print("\ninput file: circ.bench")
-            print("ouptut files: TV_E.txt, MarsenneTwisterPRTG.txt")
+            print("ouptut files: TV_E.txt, MersenneTwisterPRTG.txt")
 
             print("\nProcessing...\n")
 
             print("done\nTV_E...", end=""),
             TestVector_E(circuit["INPUT_WIDTH"][1], seedVal)
-            print("done\nMarsenneTwisterPRTG...", end=""),
-            MarsenneTwisterPRTG(circuit["INPUT_WIDTH"][1])
+            print("done\nMersenneTwisterPRTG...", end=""),
+            MersenneTwisterPRTG(circuit["INPUT_WIDTH"][1])
             print("done\n\nDone.")
 
         elif userSecondChoice == 2:
@@ -659,7 +659,7 @@ def main():
             temp.write(json.dumps(faults, indent=4))
             temp.close()
 
-            print("\ninput files: circ.bench, TV_E.txt, MarsenneTwisterPRTG.txt")
+            print("\ninput files: circ.bench, TV_E.txt, MersenneTwisterPRTG.txt")
             print("output file: f_cvg.csv")
 
             print("\nProcessing...\n")
@@ -668,7 +668,7 @@ def main():
 
             inputFiles = []
             inputFiles.append(open("TV_E.txt", "r"))
-            inputFiles.append(open("MarsenneTwisterPRTG.txt", "r"))
+            inputFiles.append(open("MersenneTwisterPRTG.txt", "r"))
 
             totalFaults = len(faults)
             totalDetected = [0, 0]
@@ -676,7 +676,7 @@ def main():
             csvFile = open("f_cvg.csv", "w")
 
             writer = csv.writer(csvFile)
-            writer.writerow(["Batch #", "E", "MarsenneTwisterPRTG", "batch size = " + str(batchSize)])
+            writer.writerow(["Batch #", "E", "MersenneTwisterPRTG", "batch size = " + str(batchSize)])
 
             # Runs the simulator for each line of the input file
             for batch in range(25):
