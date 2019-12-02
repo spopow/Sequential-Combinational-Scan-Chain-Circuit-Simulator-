@@ -192,17 +192,26 @@ def fault_processing(fault):
     return data
 
 
-def seq_data_analysis(fault_list, original_circuit, bench, cycles):
+def seq_data_analysis(original_circuit, bench, cycles):
     from scan_chain_sim_result import LFSRtestGen
+    from genFaultList import getFaultListStudy  # alexis get function that gives u list of full fault
     first_line_csv = ['Initialization ->', 'FF=U', 'FF=1', 'FF=0']
     with open('seq_simulator_analysis.csv', 'w') as csvFile:
         writer = csv.writer(csvFile)
         writer.writerow(first_line_csv)
-    num_faults = 0
     Fault_bool = True
+
+    # generating fault list for circuit
+    fault_list = getFaultListStudy(bench)
     total_num_faults = len(fault_list)
-    # generate total_num_faults mersenne tvs and return list of it
-    _, input_TVs = LFSRtestGen(bench,total_num_faults)
+    print("\ncircuit has: " + total_num_faults + " test vectors\n")
+
+    # generating a mersenne tv and return list with a tv for every fault we r testing
+    _, input_TVs = LFSRtestGen(bench, total_num_faults)
+    num_tvs = len(input_TVs)
+    print("\njust generated: " + num_tvs + " test vectors\n")
+
+    # creating csv file to plot data
     num_fault = 0
     while num_fault < total_num_faults:
         column = 0
