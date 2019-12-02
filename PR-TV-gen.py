@@ -216,7 +216,8 @@ def TestVector_E(inputSize, startSeed):
         #Writes and resets for the next output
         outputFile.write(outVect + '\n')
         outVect = ''
-            
+
+# FIXME spell check - rename to mersenneTwisterPRTG
 def MarsenneTwisterPRTG(inputSize):
     outVect = ''
     outputName = "MarsenneTwisterPRTG.txt"
@@ -224,13 +225,14 @@ def MarsenneTwisterPRTG(inputSize):
     outputFile = open(outputName,"w")
    
     for x in range(255):
-        outVect = random.randint(0, 2**(inputSize -1))
+        outVect = random.randint(0, (2**(inputSize) - 1))
         outVect = format(outVect, '0'+str(inputSize)+'b')
         outputFile.write(outVect + '\n')
 
 # Pass in circuit benchmark
-def LFSRtestGen(circuit, numCycles):
-    listPI = []
+# FIXME rename to scanInTVgen
+def LFSRtestGen(circuit, testApplyCycles):
+    lineOfPI = []
     listDFF = []
     outVect = ''
     #vector Size is the num PI and the num DFF
@@ -239,17 +241,20 @@ def LFSRtestGen(circuit, numCycles):
     vectDFF = _DFFnumFinder(circuit)
 
     #for how many test cycles, we create that many randomly generated test vectors
-    for x in range(numCycles):
-        outVect = random.randint(0, 2**(vectPI - 1))
+    
+    for x in range(testApplyCycles):
+
+        #listPI needs to return a list of strings
+        outVect = random.randint(0, (2**(vectPI)-1))
         outVect = format(outVect, '0'+str(vectPI)+'b')
-        listPI.append(outVect)
-    for x in range(numCycles):
-        outVect = random.randint(0, 2**(vectDFF - 1))
+        lineOfPI.append(outVect)
+        #listDFF needs to return list of lists of single bit strings
+        outVect = random.randint(0, (2**(vectDFF)-1))
         outVect = format(outVect, '0'+str(vectDFF)+'b')
-        listDFF.append(outVect)
+        listDFF.append(list(outVect))
 
     #returning a tuple
-    return listPI, listDFF
+    return listDFF, lineOfPI
 
 def _DFFnumFinder(circuit):
 
@@ -302,12 +307,12 @@ def main():
 
     # TestVector_A(inputSize, seedVal)
     # TestVector_B(inputSize, seedVal)
-    # TestVector_E(inputSize, seedVal)
+    TestVector_E(inputSize, seedVal)
     # TestVector_D(inputSize, seedVal)
     # TestVector_C(inputSize, seedVal)
-    # MarsenneTwisterPRTG(inputSize)
+    MarsenneTwisterPRTG(inputSize)
     print(LFSRtestGen(cktFile, 5)[0])
-    print(LFSRtestGen(cktFile, 5)[1])
+    # print(LFSRtestGen(cktFile, 5)[1])
 
 
 
