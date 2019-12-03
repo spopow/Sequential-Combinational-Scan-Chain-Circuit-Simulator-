@@ -99,12 +99,12 @@ def scan_output_file(bench_file, testApplyCycles, fault, scanType, inputTVs, fli
     faultScanData = getBasicSim(circuit, testApplyCycles, 0, scanType, True, fault, flipFlopTVs, inputTVs)
 
     # Detect the cycles at which faults are detected
-    faultAnalysis = scanFaultDetector(goodScanData, faultScanData, faultsFound, cycleFaultFound)
+    faultAnalysis = scanFaultDetector(goodScanData, faultScanData, faultsFound, cycleFaultFound, scanType)
 
     return faultAnalysis
 
 
-def scanFaultDetector(goodScanData, faultScanData, faultsFound, cycleFaultFound):
+def scanFaultDetector(goodScanData, faultScanData, faultsFound, cycleFaultFound, scanType):
     dataPO = outputComparator(faultScanData["PrimaryOutputs"], goodScanData["PrimaryOutputs"])
     dataDFF = outputComparator(faultScanData["DFF"], goodScanData["DFF"])
 
@@ -112,9 +112,10 @@ def scanFaultDetector(goodScanData, faultScanData, faultsFound, cycleFaultFound)
     # number of cycles it takes to find given fault given on the index of primary outputs it took to detect
     PO_cycles = goodScanData["totalCycles"] + dataPO[1]
 
-    # number of cycles it takes to find given fault given on the index of scan out it took to detect
-    DFF_cycles = goodScanData["totalCycles"] + dataDFF[1] + len(goodScanData["DFF"][0])
+    scanOutCycles = getScanOutCycles(goodScanData["circuit"], scanType)
 
+    # number of cycles it takes to find given fault given on the index of scan out it took to detect
+    DFF_cycles = goodScanData["totalCycles"] + dataDFF[1] + scanOutCycles
 
     if dataPO[0] and PO_cycles < DFF_cycles:
         faultsFound = faultsFound + 1
@@ -244,7 +245,7 @@ def getBasicSim(circuit, testApplyCycles, totalCycles, scanType, Fault_bool, fau
         scanData["PrimaryOutputs"].append(storePrimaryOutputs(circuit, scanData["PrimaryOutputs"]))
 
         # Add test apply cycle
-        #totalCycles += 1
+        # totalCycles += 1
 
         # function to reset all False to true for each gate that is not a DFF
         circuit = reset_Gate_T_F(circuit)
@@ -252,8 +253,8 @@ def getBasicSim(circuit, testApplyCycles, totalCycles, scanType, Fault_bool, fau
         cycle = cycle + 1
         # print("Running Cycle: " + str(cycle) + "\n")
 
-    scanOutCycles = getScanOutCycles(circuit, scanType)
-    totalCycles = totalCycles + scanOutCycles - 1
+    # scanOutCycles = getScanOutCycles(circuit, scanType)
+    # totalCycles = totalCycles + scanOutCycles
 
     # update circuit in the dictionary
     scanData["circuit"] = circuit
