@@ -1,4 +1,4 @@
-import copy
+import csv
 import scan_chain
 import random
 import math
@@ -67,8 +67,20 @@ def scan_chain_study():
                                                                                 faultsFoundParallel,
                                                                                 cycleFaultFoundParallel)
 
-    print(faultsFoundPartial)
-    print(cycleFaultFoundPartial)
+    percentFoundPartial = getPercentageFaultsFound(faultsFoundPartial, len(fullFaultList))
+    percentFoundFull = getPercentageFaultsFound(faultsFoundFull, len(fullFaultList))
+    percentFoundParallel = getPercentageFaultsFound(faultsFoundParallel, len(fullFaultList))
+
+    avgCyclePartial = getAverageCycles(cycleFaultFoundPartial)
+    avgCycleFull = getAverageCycles(cycleFaultFoundFull)
+    avgCycleParallel = getAverageCycles(cycleFaultFoundParallel)
+
+    avgCyclePartial = round(avgCyclePartial, 2)
+    avgCycleFull = round(avgCycleFull, 2)
+    avgCycleParallel = round(avgCycleParallel, 2)
+
+    printCSV(circuit_bench, percentFoundPartial, percentFoundFull, percentFoundParallel, avgCyclePartial, avgCycleFull,
+             avgCycleParallel)
 
 
 def scan_output_file(bench_file, testApplyCycles, fault, scanType, inputTVs, flipFlopTVs, faultsFound, cycleFaultFound):
@@ -83,40 +95,34 @@ def scan_output_file(bench_file, testApplyCycles, fault, scanType, inputTVs, fli
     # Run circuit simulation to generate the results of the good circuit
     goodScanData = getBasicSim(circuit, testApplyCycles, 0, scanType, False, fault, flipFlopTVs, inputTVs)
 
-    # Get the number of flip flops in the circuit
-    numFlipFlops = getNumFF(bench_file)
-
-    # Get number of primary outputs and print them to file
-    numPrimOutputs = getNumPrimaryOutputs(bench_file)
-
+    # Run circuit simulation to generate the results of the faulty circuit
     faultScanData = getBasicSim(circuit, testApplyCycles, 0, scanType, True, fault, flipFlopTVs, inputTVs)
 
+    # Detect the cycles at which faults are detected
     faultAnalysis = scanFaultDetector(goodScanData, faultScanData, faultsFound, cycleFaultFound)
 
     return faultAnalysis
 
 
 def scanFaultDetector(goodScanData, faultScanData, faultsFound, cycleFaultFound):
-
     dataPO = outputComparator(faultScanData["PrimaryOutputs"], goodScanData["PrimaryOutputs"])
     dataDFF = outputComparator(faultScanData["DFF"], goodScanData["DFF"])
 
     compOut = ''
     # number of cycles it takes to find given fault given on the index of primary outputs it took to detect
-    # number of DFFs * test apply cycles + test apply cycles
-    PO_cycles = len(goodScanData["DFF"][0]) * dataPO[1] + dataPO[1]
+    PO_cycles = goodScanData["totalCycles"] + dataPO[1]
 
     # number of cycles it takes to find given fault given on the index of scan out it took to detect
-    # (i.e. number of DFFs * test apply cycle found + test apply cycles + number of DFFs to scan out)
-    DFF_cycles = len(goodScanData["DFF"][0]) * dataDFF[1] + dataDFF[1] + len(goodScanData["DFF"][0])
+    DFF_cycles = goodScanData["totalCycles"] + dataDFF[1] + len(goodScanData["DFF"][0])
+
 
     if dataPO[0] and PO_cycles < DFF_cycles:
         faultsFound = faultsFound + 1
-        cycleFaultFound.append(dataPO[1])
+        cycleFaultFound.append(PO_cycles)
 
     elif dataDFF[0] and DFF_cycles < PO_cycles:
         faultsFound = faultsFound + 1
-        cycleFaultFound.append(dataDFF[1])
+        cycleFaultFound.append(DFF_cycles)
 
     else:
         print("Fault not detected...")
@@ -237,13 +243,14 @@ def getBasicSim(circuit, testApplyCycles, totalCycles, scanType, Fault_bool, fau
         # collect list of test apply data to dictionary
         scanData["PrimaryOutputs"].append(storePrimaryOutputs(circuit, scanData["PrimaryOutputs"]))
 
-        totalCycles += 1
+        # Add test apply cycle
+        #totalCycles += 1
 
         # function to reset all False to true for each gate that is not a DFF
         circuit = reset_Gate_T_F(circuit)
 
         cycle = cycle + 1
-        print("Running Cycle: " + str(cycle) + "\n")
+        # print("Running Cycle: " + str(cycle) + "\n")
 
     scanOutCycles = getScanOutCycles(circuit, scanType)
     totalCycles = totalCycles + scanOutCycles - 1
@@ -280,12 +287,11 @@ def storePrimaryOutputs(circuit, someList):
 # FUNCTION: outputComparator
 # Boolean Function Outputs:
 # True: Difference found between circuits so fault found
-# False: No Diffference Found
-# Inputs: Good & Bad lists, wether it's sequential or scan chain study
-# FIXME CHECK IF WORKS FOR OTHER SIMULATORS
+# False: No difference found
+# Inputs: Good & Bad lists, whether it's sequential or scan chain study
 def outputComparator(badList, goodList):
     # error check to make sure lists are the same length
-    if (len(badList) != len(goodList)):
+    if len(badList) != len(goodList):
         print("The list sizes are different! Cannot compare for fault detection")
         return -1
     # goes through each index of the lists and compares
@@ -345,6 +351,29 @@ def getScanOutCycles(circuit, scanType):
                 scanOut = scanOut + 1
 
     return scanOut
+
+
+def getAverageCycles(cycleFaultFound):
+    return sum(cycleFaultFound) / len(cycleFaultFound)
+
+
+def getPercentageFaultsFound(faultsFound, totalFaults):
+    return round((faultsFound / totalFaults) * 100, 2)
+
+
+def printCSV(benchName, percentFoundPartial, percentFoundFull, percentFoundParallel, avgCyclePartial, avgCycleFull,
+             avgCycleParallel):
+    firstLine = ['', '% of Faults Found', 'Average Cycles']
+    partialLine = ['Partial', str(percentFoundPartial), str(avgCyclePartial)]
+    fullLine = ['Full', str(percentFoundFull), str(avgCycleFull)]
+    parallelLine = ['Parallel', str(percentFoundParallel), str(avgCycleParallel)]
+
+    with open('scan_chain_study.csv', 'w') as csvFile:
+        writer = csv.writer(csvFile)
+        writer.writerow(firstLine)
+        writer.writerow(partialLine)
+        writer.writerow(fullLine)
+        writer.writerow(parallelLine)
 
 
 # If this module is executed alone
