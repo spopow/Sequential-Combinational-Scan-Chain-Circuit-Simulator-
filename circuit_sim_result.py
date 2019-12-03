@@ -27,15 +27,17 @@ def output_file(bench_file, num_cycles, fault, user_tv_str):
     simulatorTxt.write("******************GOOD CIRCUIT SIM********************\n")
     simulatorTxt.write("Flip Flop & Primary Outputs @ n = " + str(num_cycles) + "\n")
     simulatorTxt.write("User TV: " + user_tv_str + "\n")
-    #simulatorTxt.write("-------------------------------------------------------\n")
+
     numFlipFlops = getNumFF(bench_file)
-    #simulatorTxt.write("D-Type Flip Flops: " + str(numFlipFlops) + "\n")
+
     printFFvalues(good_circuit, simulatorTxt)  # call function that prints ff/value
     numPrimOutputs = getNumPrimaryOutputs(bench_file)
-    #simulatorTxt.write("\nPrimary Outputs: " + str(numPrimOutputs) + "\n")
-    printPOValues(good_circuit, simulatorTxt)  # call function that prints PO value - SZYMON TO-DO
+
+    printPOValues(good_circuit, simulatorTxt)  # call function that prints PO value
+
+    # make circuit with fault and update values
     Fault_bool = True
-    badCircuit = getBasicSim(clean_circuit, num_cycles, user_tv_str, Fault_bool, fault)[0]  # make circuit with fault and update values
+    badCircuit = getBasicSim(clean_circuit, num_cycles, user_tv_str, Fault_bool, fault)[0]
     badList = getBasicSim(clean_circuit, num_cycles, user_tv_str, Fault_bool, fault)[1]
     #print(outputComparator(badList, goodlist))
    
@@ -192,38 +194,55 @@ def fault_processing(fault):
     return data
 
 
-def seq_data_analysis(original_circuit, bench, cycles):
-    from scan_chain_sim_result import LFSRtestGen
-    from genFaultList import getFaultListStudy  # alexis get function that gives u list of full fault
+def seq_data_analysis(bench_file, cycles):
+    from p2sim import netRead
+    from scan_chain_sim_result import LFSRtestGen, scanFaultDetector
+    from genFaultList import getFaultListStudy
+
     first_line_csv = ['Initialization ->', 'FF=U', 'FF=1', 'FF=0']
     with open('seq_simulator_analysis.csv', 'w') as csvFile:
         writer = csv.writer(csvFile)
         writer.writerow(first_line_csv)
-    Fault_bool = True
 
     # generating fault list for circuit
-    fault_list = getFaultListStudy(bench)
+    fault_list = getFaultListStudy(bench_file)
     total_num_faults = len(fault_list)
     print("\ncircuit has: " + total_num_faults + " test vectors\n")
 
     # generating a mersenne tv and return list with a tv for every fault we r testing
-    _, input_TVs = LFSRtestGen(bench, total_num_faults)
+    _, input_TVs = LFSRtestGen(bench_file, total_num_faults)
     num_tvs = len(input_TVs)
     print("\njust generated: " + num_tvs + " test vectors\n")
 
     # creating csv file to plot data
     num_fault = 0
+
+    circuit = netRead(bench_file)
+    # doing initialization for corresponding circuits DFF
+    circuit_u = netRead(bench_file)
+    # circuit_one = ff_init_one(original_circuit)
+    # circuit_zero = ff_init_zero(original_circuit)
+
     while num_fault < total_num_faults:
         column = 0
         while column < 3:
             print("column #:" + str(column) + "\n")
-            # doing initialization for corresponding circuits
-            circuit_u = original_circuit
-            #circuit_one = ff_init_one(original_circuit)
-            #circuit_zero = ff_init_zero(original_circuit)
 
-            #call getBasicSim for each
-            circuit_u = getBasicSim(circuit_u, cycles, tv_str, Fault_bool, fault_list[num_fault])
+            Fault_bool = True
+            # call getBasicSim for each circuit w/fault
+            circuit_u_f = getBasicSim(circuit_u, cycles, input_TVs[num_fault], Fault_bool, fault_list[num_fault])
+            # circuit_one_f = getBasicSim(circuit_one, cycles, input_TVs[num_fault], Fault_bool, fault_list[num_fault])
+            # circuit_zero_f = getBasicSim(circuit_zero, cycles, input_TVs[num_fault], Fault_bool, fault_list[num_fault])
+
+            Fault_bool = False
+            # call getBasicSim for each circuit wout/fault
+            circuit_u_nf = getBasicSim(circuit_u, cycles, input_TVs[num_fault], Fault_bool, fault_list[num_fault])
+            # circuit_one_nf = getBasicSim(circuit_one, cycles, input_TVs[num_fault], Fault_bool, fault_list[num_fault])
+            # circuit_zero_nf = getBasicSim(circuit_zero, cycles, input_TVs[num_fault], Fault_bool, fault_list[num_fault])
+
+
+            # call function that gets cycle where fault was found
+            scanFaultDetector(circuit)
 
         num_fault += 1
 
