@@ -8,7 +8,7 @@ import json
 
 
 def output_file(bench_file, num_cycles, fault, user_tv_str):
-    from p2sim import netRead, printCkt
+    from p3sim import netRead, printCkt
     from scan_chain_sim_result import outputComparator
     goodList = []
     badList = []
@@ -76,7 +76,7 @@ def getNumPrimaryOutputs(bench_file):
 
 def getBasicSim(circuit, total_cycles, user_tv_str, Fault_bool, fault):
     #print("stuck at get basic sim\n")
-    from p2sim import basic_sim, inputRead
+    from p3sim import basic_sim, inputRead
     from scan_chain_sim_result import storePrimaryOutputs
     circuit = inputRead(circuit, user_tv_str)
     cycle = 0
@@ -105,7 +105,7 @@ def getBasicSim(circuit, total_cycles, user_tv_str, Fault_bool, fault):
 
 
 def getFaultCircuit(circuit, fault):
-    from p2sim import printCkt
+    from p3sim import printCkt
     fault = fault_processing(fault)
     faultCircuit = copy.deepcopy(circuit)
 
@@ -160,7 +160,7 @@ def printPOValues(circuit, simulatorTxt):
 
 def reset_Gate_T_F(circuit):
     #print("stuck at resetting gates\n")
-    from p2sim import printCkt
+    from p3sim import printCkt
     for curr in circuit:
         #print("Curr is:" + str(circuit[curr]))              DEBUG COMMENT
         currLen = len(circuit[curr])

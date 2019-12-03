@@ -2,11 +2,11 @@
 
 from math import ceil, floor
 
-import p2sim
+import p3sim
 
 
 # OVERVIEW
-# This module acts as a scan chain library that can be imported to p2sim.py and run partial, full, and parallel
+# This module acts as a scan chain library that can be imported to p3sim.py and run partial, full, and parallel
 # scan chain fault simulations.
 # ----------------------------------------------------------------------------------------------------------------------
 
@@ -80,7 +80,7 @@ if __name__ == "__main__":
     # let's read the name of bench file
     fileName = "s27.bench"
     testVector = [1, 0, 1]
-    circuit = p2sim.netRead(fileName)
-    #p2sim.printCkt(circuit)
+    circuit = p3sim.netRead(fileName)
+    #p3sim.printCkt(circuit)
     circuit = scanChain(circuit, 'partial', testVector, 0)
     print(circuit[1])

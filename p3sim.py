@@ -378,8 +378,8 @@ def gateCalc(circuit, node):
 # -------------------------------------------------------------------------------------------------------------------- #
 # FUNCTION: Updating the circuit dictionary with the input line, and also resetting the gates and output lines
 def inputRead(circuit, line):
-    #print("DOes it break at line?")
-    #print(line)     DEBUG COMMENT
+    # print("DOes it break at line?")
+    # print(line)     DEBUG COMMENT
     # Checking if input bits are enough for the circuit
     if len(line) < circuit["INPUT_WIDTH"][1]:
         return -1
@@ -455,14 +455,14 @@ def basic_sim(circuit, Fault_bool, fault):
                 term_has_value = False
 
         if term_has_value or oneInputSET:  # if input terminals have been set
-            #print("Thus, term_has_value is set to :", term_has_value)
+            # print("Thus, term_has_value is set to :", term_has_value)
             # checks to make sure the gate output has not already been set
             if circuit[curr][2] == False:
                 # print("Curr  is set to", circuit[curr][2], "So it will proceed to gateCalc")
                 circuit = gateCalc(circuit, curr)
                 if Fault_bool:
                     circuit = getFaultCircuit(circuit, fault)
-                #print("Gate calc has finished:")   DEBUG COMMENT
+                # print("Gate calc has finished:")   DEBUG COMMENT
                 circuit[curr][2] = True
                 # print("gate set to true \n")
             elif circuit[curr][2] and circuit[curr][0] == "DFF":
@@ -470,15 +470,15 @@ def basic_sim(circuit, Fault_bool, fault):
                 circuit = gateCalc(circuit, curr)
                 if Fault_bool:
                     circuit = getFaultCircuit(circuit, fault)
-                #print("Gate calc has finished:")    DEBUG COMMENT
-            #printCkt(circuit)     DEBUG COMMENT
+                # print("Gate calc has finished:")    DEBUG COMMENT
+            # printCkt(circuit)     DEBUG COMMENT
             # ERROR Detection if LOGIC does not exist
             if isinstance(circuit, str):
-                #print(circuit)
+                # print(circuit)
                 return circuit
         else:
             # If the terminals have not been accessed yet, append the current node at the end of the queue
-            #print("curr is appended back")               DEBUG COMMENT
+            # print("curr is appended back")               DEBUG COMMENT
             # printCkt(circuit)
             queue.append(curr)
 
@@ -530,9 +530,8 @@ def basic_sim_comb(circuit):
     return circuit
 
 
-# FIXME Getting this error: '/bin/sh: 1: gnuplot: not found'
 def plot():
-    plotProcess = subprocess.Popen("gnuplot p2plot.gpl", shell=True)
+    plotProcess = subprocess.Popen("gnuplot p3plot.gpl", shell=True)
     os.waitpid(plotProcess.pid, 0)
 
 
@@ -545,12 +544,12 @@ def getTestVectorRange(circuit):
     for _ in circuit['INPUTS'][1]:
         testVectorWidth = testVectorWidth + 1
 
-
     testVectorWidth = testVectorWidth - 1
     testVectorMin = (-1) * pow(2, testVectorWidth)
     testVectorMax = pow(2, testVectorWidth) - 1
 
     return testVectorMin, testVectorMax
+
 
 def getTestVectorRangePO(circuit):
     testVectorWidth = 0
@@ -558,12 +557,108 @@ def getTestVectorRangePO(circuit):
     for _ in circuit['INPUTS'][1]:
         testVectorWidth = testVectorWidth + 1
 
-
     testVectorWidth = testVectorWidth - 1
     testVectorMin = (-1) * pow(2, testVectorWidth)
     testVectorMax = pow(2, testVectorWidth) - 1
 
     return testVectorMin, testVectorMax
+
+
+def chooseTestBench():
+    while True:
+        print('\nPlease choose a sequential benchmark file to test')
+        print('\n1. s27.bench')
+        print('2. s208.bench')
+        print('3. s298.bench')
+        print('4. s386.bench')
+        print('5. s420.bench')
+        print('6. s526.bench')
+        print('7. s641.bench')
+        print('8. s5378.bench')
+        print('9. Enter your own...\n')
+
+        userInput = input()
+        if userInput == "":
+            print("\nPlease Enter a value\n")
+            break
+        else:
+            userChoice = int(userInput)
+
+        if userChoice >= 1 & userChoice <= 9:
+            break
+        else:
+            print("\nChoice not valid. Please enter a valid choice.\n")
+
+    if userChoice == 1:
+        benchFile = 'Sequential-Circuits/s27.bench'
+
+    if userChoice == 2:
+        benchFile = 'Sequential-Circuits/s208.bench'
+
+    if userChoice == 3:
+        benchFile = 'Sequential-Circuits/s386.bench'
+
+    if userChoice == 4:
+        benchFile = 'Sequential-Circuits/s420.bench'
+
+    if userChoice == 5:
+        benchFile = 'Sequential-Circuits/s526.bench'
+
+    if userChoice == 6:
+        benchFile = 'Sequential-Circuits/s641.bench'
+
+    if userChoice == 7:
+        benchFile = 'Sequential-Circuits/s1196.bench'
+
+    if userChoice == 8:
+        benchFile = 'Sequential-Circuits/s5378.bench'
+
+    if userChoice == 9:
+        benchFile = input("Input a circuit benchmark: ")
+
+    return benchFile
+
+
+def chooseTestBenchComb(flag):
+    while True:
+        print('\nPlease choose a sequential benchmark file to test')
+        if flag == 1:
+            print('Note: Make sure to select the same one you selected for Test Vector Generation')
+        print('\n1. c432.bench')
+        print('2. c499.bench')
+        print('3. c880.bench')
+        print('4. c2670.bench')
+        print('5. Enter your own...\n')
+
+        userInput = input()
+        if userInput == "":
+            print("\nPlease Enter a value\n")
+            break
+        else:
+            userChoice = int(userInput)
+
+        if userChoice >= 1 & userChoice <= 5:
+            break
+        else:
+            print("\nChoice not valid. Please enter a valid choice.\n")
+
+    if userChoice == 1:
+        benchFile = 'Combinational-Circuits/c432.bench'
+
+    if userChoice == 2:
+        benchFile = 'Combinational-Circuits/c499.bench'
+
+    if userChoice == 3:
+        benchFile = 'Combinational-Circuits/c880.bench'
+
+    if userChoice == 4:
+        benchFile = 'Combinational-Circuits/c2670.bench'
+
+    if userChoice == 5:
+        benchFile = input("Input a circuit benchmark: ")
+
+    return benchFile
+
 
 # -------------------------------------------------------------------------------------------------------------------- #
 # FUNCTION: Main Function
@@ -580,7 +675,7 @@ def main():
     while True:
         userChoice = 0
         print("\nChoose what type of circuit you will be working with (1 or 2): ")
-        print("1: Combinational Circuit Case Study")
+        print("1: Combinational Circuit")
         print("2: Sequential Circuit")
         userInput = input()
         if userInput == "":
@@ -593,7 +688,6 @@ def main():
             else:
                 print("\nChoice not valid. Please enter a valid choice.\n")
 
-    circuit = netRead("circ.bench")
 
     # print(circuit["INPUT_WIDTH"])
     # print(circuit["INPUTS"])
@@ -603,7 +697,6 @@ def main():
 
     # printCkt(circuit)
     # keep an initial (unassigned any value) copy of the circuit for an easy reset
-    newCircuit = circuit
 
     if (userChoice == 1):
         while True:
@@ -623,6 +716,9 @@ def main():
                     print("\nChoice not valid. Please enter a valid choice.\n")
 
         if (userSecondChoice == 1):
+            benchMark = chooseTestBenchComb(0)
+            circuit = netRead(benchMark)
+
             # get seed
             while True:
                 print("\nOption 1: Test Vector Generation.")
@@ -650,6 +746,11 @@ def main():
             print("done\n\nDone.")
 
         elif userSecondChoice == 2:
+
+            benchMark = chooseTestBenchComb(1)
+            circuit = netRead(benchMark)
+            newCircuit = circuit
+
             # get batch size
             while True:
                 # FIXME allow for
@@ -812,8 +913,9 @@ def main():
         while True:
             userThirdChoice = 0
             print("\nChoose what you would like to do (1 or 2): \n")
-            print("1: Scan Chain Study")
-            print("2: Sequential Circuit Simulation")
+            print("1: Sequential Circuit Fault Simulation")
+            print("2: Scan Chain Fault Simulation")
+
             userInput = input()
             if userInput == "":
                 print("\nPlease Enter a value\n")
@@ -825,7 +927,7 @@ def main():
                 else:
                     print("\nChoice not valid. Please enter a valid choice.\n")
 
-        if userThirdChoice == 1:  # scan chain study
+        if userThirdChoice == 2:  # scan chain study
             while True:
                 userFourthChoice = 0
                 print("\nChoose what you would like to do (1, 2, or 3): ")
@@ -858,8 +960,9 @@ def main():
             print("Partial Scan Chain Sequential Circuit Simulation\n")
             print("----------------------------------------------------\n")
             # alexis
-            circuit_bench = input("Input a circuit benchmark: ")
+            #circuit_bench = input("Input a circuit benchmark: ")
             # take file name and generate fault list for bench file ; output to terminal as list of numbers
+            circuit_bench = chooseTestBench()
             fault = genFaultList.getFaultList(circuit_bench)
             intVal = 0
 
@@ -887,18 +990,20 @@ def main():
 
             scan_output_file(circuit_bench, num_cycles, fault, scanType)
 
-        if userThirdChoice == 2:  # sequential circuit simulation
+        if userThirdChoice == 1:  # sequential circuit simulation
             print("Sequential Circuit Simulation\n")
             print("----------------------------------------------------\n")
             # alexis
-            circuit_bench = input("Input a circuit benchmark: ")
+            #circuit_bench = input("Input a circuit benchmark: ")
             # take file name and generate fault list for bench file ; output to terminal as list of numbers
+            circuit_bench = chooseTestBench()
             fault = genFaultList.getFaultList(circuit_bench)
             circuit_seq = netRead(circuit_bench)
             testVectorRange = getTestVectorRangePO(circuit_seq)
             intVal = 0
             while True:
-                print("\nUse 0 as your test vector? Otherwise, select a value between " + str(testVectorRange[0]) + " and " + str(testVectorRange[1]) + ":")
+                print("\nUse 0 as your test vector? Otherwise, select a value between " + str(
+                    testVectorRange[0]) + " and " + str(testVectorRange[1]) + ":")
                 userInput = input()
                 if userInput == "":
                     print("\nYour integer for your test vector is: ", intVal)
@@ -911,9 +1016,6 @@ def main():
                     break
                 else:
                     print("\nYour input value is not in range")
-
-
-
 
             user_tv_str = testVectorGen(circuit_bench, intVal)  # this will need to be passed to the simulator
 

@@ -1,6 +1,6 @@
 import copy
 import scan_chain
-import p2sim
+import p3sim
 import random
 import math
 
@@ -11,7 +11,7 @@ import math
 
 
 def scan_output_file(bench_file, testApplyCycles, fault, scanType):
-    from p2sim import netRead, printCkt
+    from p3sim import netRead, printCkt
 
     goodScanData = {}
     faultScanData = {}
@@ -35,7 +35,7 @@ def scan_output_file(bench_file, testApplyCycles, fault, scanType):
     # Write into the text file that will hold all the results
     simulatorTxt.write("******************GOOD CIRCUIT SIM********************\n")
     
-    simulatorTxt.write("Flip Flop & Primary Outputs @ n = " + str(goodScanData["totalCycles"]) + "\n")
+    simulatorTxt.write("Flip Flop & Primary Outputs @ n = " + str(testApplyCycles) + " test apply cycles\n")
     
     # Get the number of flip flops in the circuit
     numFlipFlops = getNumFF(bench_file)
@@ -52,9 +52,9 @@ def scan_output_file(bench_file, testApplyCycles, fault, scanType):
 
     faultScanData = getBasicSim(circuit, testApplyCycles, 0, scanType, bench_file, True, fault, scanInTV, PrimaryInputs)
     # badCircuit = getFaultCvgSeq(circuit, fault, num_cycles)  # make circuit with fault and update values - JAS TD
-    simulatorTxt.write("\n******************BAD CIRCUIT SIM********************\n")
+    simulatorTxt.write("\n\n******************BAD CIRCUIT SIM********************\n")
     simulatorTxt.write("Fault: " + str(fault) + "\n")
-    simulatorTxt.write("Flip Flop & Primary Outputs @ n = " + str(faultScanData["totalCycles"]) + "\n")
+    simulatorTxt.write("Flip Flop & Primary Outputs @ n = " + str(testApplyCycles) + " test apply cycles\n")
     simulatorTxt.write("*****************************************************\n")
     simulatorTxt.write("D-Type Flip Flops: " + numFlipFlops + "\n")
     # call function that prints ff/value
@@ -62,8 +62,8 @@ def scan_output_file(bench_file, testApplyCycles, fault, scanType):
     simulatorTxt.write("\nPrimary Outputs: " + str(numPrimOutputs) + "\n")
     printPOValues(faultScanData["circuit"], simulatorTxt)
 
-    simulatorTxt.write("\n******************FAULT DETECTION********************\n")
-    scanFaultDetector(goodScanData, faultScanData, fault, simulatorTxt)
+    simulatorTxt.write("\n\n******************FAULT DETECTION********************")
+    scanFaultDetector(goodScanData, faultScanData, fault, simulatorTxt, scanType)
     
     # if (outputComparator(faultScanData["PrimaryOutputs"], goodScanData["PrimaryOutputs"])[0]):
     #     compOut = "\n" + fault + " has been detected at cycle " + str(outputComparator(badList, goodList)[1]) + " with test vector " + user_tv_str + "\n"
@@ -79,7 +79,7 @@ def scan_output_file(bench_file, testApplyCycles, fault, scanType):
 
 # Wrapper function to output the cycle number the fault was found
 
-def scanFaultDetector(goodScanData, faultScanData, fault, simulatorTxt):
+def scanFaultDetector(goodScanData, faultScanData, fault, simulatorTxt, scanType):
     dataPO = outputComparator(faultScanData["PrimaryOutputs"], goodScanData["PrimaryOutputs"])
     dataDFF = outputComparator(faultScanData["DFF"], goodScanData["DFF"])
     compOut = ''
@@ -88,19 +88,19 @@ def scanFaultDetector(goodScanData, faultScanData, fault, simulatorTxt):
     # PO_cycles = len(goodScanData["DFF"][0]) * dataPO[1] + dataPO[1]
     PO_cycles = goodScanData["totalCycles"] + dataPO[1]
 
+    scanOutCycles = getScanOutCycles(goodScanData["circuit"], scanType)
 
     # number of cycles it takes to find given fault given on the index of scan out it took to detect
     # (i.e. number of DFFs * test apply cycle found + test apply cycles + number of DFFs to scan out)
     # DFF_cycles = len(goodScanData["DFF"][0]) * dataDFF[1] + dataDFF[1] + len(goodScanData["DFF"][0])
-    DFF_cycles = goodScanData["totalCycles"] + dataDFF[1] + len(goodScanData["DFF"][0])
-
+    DFF_cycles = goodScanData["totalCycles"] + dataDFF[1] + scanOutCycles
 
     
     if dataPO[0] and PO_cycles < DFF_cycles:
-        compOut = "\n" + fault + " has been detected at cycle " + str(PO_cycles) + " and at Test Apply Cycle: "+ str(dataPO[1])
+        compOut = "\n" + fault + " has been detected at cycle " + str(PO_cycles)
         simulatorTxt.write(compOut)
     elif dataDFF[0] and DFF_cycles < PO_cycles:
-        compOut = "\n" + fault + " has been detected at cycle " + str(DFF_cycles)  + " and at Test Apply Cycle: "+ str(dataDFF[1])
+        compOut = "\n" + fault + " has been detected at cycle " + str(DFF_cycles)
         simulatorTxt.write(compOut)
     else:
         compOut = "\n" + fault + " has NOT been detected \n"
@@ -191,7 +191,7 @@ def getNumPrimaryOutputs(bench_file):
 
 #requires the circuit as an object
 def getBasicSim(circuit, testApplyCycles, totalCycles, scanType, circuitBench, Fault_bool, fault, scanInTV, PrimaryInputs):
-    from p2sim import basic_sim, inputRead
+    from p3sim import basic_sim, inputRead
     from circuit_sim_result import getFaultCircuit
 
     scanData = {
@@ -226,7 +226,7 @@ def getBasicSim(circuit, testApplyCycles, totalCycles, scanType, circuitBench, F
         # collect list of test apply data to dictionary
         scanData["PrimaryOutputs"].append(storePrimaryOutputs(circuit, scanData["PrimaryOutputs"]))
 
-        totalCycles += 1
+        #totalCycles += 1
 
         # function to reset all False to true for each gate that is not a DFF
         circuit = reset_Gate_T_F(circuit)  
@@ -234,8 +234,8 @@ def getBasicSim(circuit, testApplyCycles, totalCycles, scanType, circuitBench, F
         cycle = cycle + 1
         print("Running Cycle: " + str(cycle) + "\n")
 
-    scanOutCycles = getScanOutCycles(circuit, scanType)
-    totalCycles = totalCycles + scanOutCycles - 1
+    #scanOutCycles = getScanOutCycles(circuit, scanType)
+    #totalCycles = totalCycles + scanOutCycles - 1
 
     # update circuit in the dictionary
     scanData["circuit"] = circuit
@@ -297,7 +297,7 @@ def outputComparator(badList, goodList):
 # circuit here is dictionary
 def printFFvalues(circuit, file):
     flipFlopNum = 0
-    file.write('**********************DFF VALUES**********************')
+    file.write('*********************DFF VALUES**********************')
     for gate in circuit:
         if circuit[gate][0] == 'DFF':
             dFlipFlop = '\n DFF_' + str(flipFlopNum) + ": " + str(circuit[gate][3]) + " "
@@ -312,14 +312,14 @@ def printFFvalues(circuit, file):
 def printPOValues(circuit, simulatorTxt):
 
     outputList = circuit["OUTPUTS"][1]
-    simulatorTxt.write('*****************Primary Output Values*****************')
+    simulatorTxt.write('****************Primary Output Values*****************')
     for output in outputList:
         PrimaryOutputs = "\n" + output + ":" + circuit[output][3]
         simulatorTxt.write(PrimaryOutputs)
 
 
 def getFaultCvgSeq(circuit, fault, total_cycles, fileIndex=None, faults=None):
-    from p2sim import basic_sim, inputRead
+    from p3sim import basic_sim, inputRead
     print("inside getFaultCvgSeq\n")
     # keep an initial (unassigned any value) copy of the circuit for an easy reset
     newCircuit = circuit
@@ -428,7 +428,7 @@ def getFaultCvgSeq(circuit, fault, total_cycles, fileIndex=None, faults=None):
 
 def reset_Gate_T_F(circuit):
     # print("stuck at resetting gates\n")
-    from p2sim import printCkt
+    from p3sim import printCkt
     for curr in circuit:
         #print("Curr is:" + str(circuit[curr]))
         currLen = len(circuit[curr])
@@ -470,8 +470,8 @@ if __name__ == "__main__":
     # let's read the name of bench file
     fileName = "s27.bench"
     testVector = [1, 0, 1]
-    circuit = p2sim.netRead(fileName)
+    circuit = p3sim.netRead(fileName)
     #create own tuple testvestor
-    #p2sim.printCkt(circuit)
+    #p3sim.printCkt(circuit)
     #print(circuit)
     #circuit = getBasicSim(circuit, 5, 0, "full", fileName)
