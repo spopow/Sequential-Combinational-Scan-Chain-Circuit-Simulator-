@@ -898,9 +898,6 @@ def main():
                 else:
                     print("\nYour input value is not in range")
 
-
-
-
             user_tv_str = testVectorGen(circuit_bench, intVal)  # this will need to be passed to the simulator
 
             num_cycles = 5
