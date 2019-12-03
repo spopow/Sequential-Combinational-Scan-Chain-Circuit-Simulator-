@@ -1,0 +1,27 @@
+******************GOOD CIRCUIT SIM********************
+Flip Flop & Primary Outputs @ n = 16
+D-Type Flip Flops: 3
+**********************DFF VALUES**********************
+ DFF_0: 0 
+ DFF_1: 0 
+ DFF_2: 1 
+******************************************************
+Primary Outputs: 1
+*****************Primary Output Values*****************
+wire_G17:1
+******************BAD CIRCUIT SIM********************
+Fault: G0-SA-0
+Flip Flop & Primary Outputs @ n = 16
+*****************************************************
+D-Type Flip Flops: 3
+**********************DFF VALUES**********************
+ DFF_0: 0 
+ DFF_1: 0 
+ DFF_2: 1 
+******************************************************
+Primary Outputs: 1
+*****************Primary Output Values*****************
+wire_G17:1
+******************FAULT DETECTION********************
+
+G0-SA-0 has been detected at cycle 20 and at Test Apply Cycle: 1

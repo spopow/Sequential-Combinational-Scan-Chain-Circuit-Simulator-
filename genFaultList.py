@@ -181,10 +181,10 @@ def getFaultListStudy(netName):
             faults.append(stuckAt0)
             faults.append(stuckAt1)
 
-    # for _ in range(numberFaults):
-        # selectedFaults.append(random.choice(faults))
+    for _ in range(15):
+        selectedFaults.append(random.choice(faults))
 
-    return faults
+    return selectedFaults
 
 
 # If this module is executed alone

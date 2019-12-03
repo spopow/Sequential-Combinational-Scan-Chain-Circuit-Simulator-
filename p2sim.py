@@ -378,8 +378,6 @@ def gateCalc(circuit, node):
 # -------------------------------------------------------------------------------------------------------------------- #
 # FUNCTION: Updating the circuit dictionary with the input line, and also resetting the gates and output lines
 def inputRead(circuit, line):
-    #print("DOes it break at line?")
-    #print(line)     DEBUG COMMENT
     # Checking if input bits are enough for the circuit
     if len(line) < circuit["INPUT_WIDTH"][1]:
         return -1
@@ -552,6 +550,19 @@ def getTestVectorRange(circuit):
 
     return testVectorMin, testVectorMax
 
+def getTestVectorRangePO(circuit):
+    testVectorWidth = 0
+
+    for _ in circuit['INPUTS'][1]:
+        testVectorWidth = testVectorWidth + 1
+
+
+    testVectorWidth = testVectorWidth - 1
+    testVectorMin = (-1) * pow(2, testVectorWidth)
+    testVectorMax = pow(2, testVectorWidth) - 1
+
+    return testVectorMin, testVectorMax
+
 # -------------------------------------------------------------------------------------------------------------------- #
 # FUNCTION: Main Function
 def main():
@@ -568,6 +579,7 @@ def main():
         userChoice = 0
         print("\nChoose what type of circuit you will be working with (1 or 2): ")
         print("1: Combinational Circuit Case Study")
+        # FIXME TODO add option for circuit bench for combinational
         print("2: Sequential Circuit")
         userInput = input()
         if userInput == "":
@@ -882,7 +894,7 @@ def main():
             # take file name and generate fault list for bench file ; output to terminal as list of numbers
             fault = genFaultList.getFaultList(circuit_bench)
             circuit_seq = netRead(circuit_bench)
-            testVectorRange = getTestVectorRange(circuit_seq)
+            testVectorRange = getTestVectorRangePO(circuit_seq)
             intVal = 0
             while True:
                 print("\nUse 0 as your test vector? Otherwise, select a value between " + str(testVectorRange[0]) + " and " + str(testVectorRange[1]) + ":")
@@ -898,9 +910,6 @@ def main():
                     break
                 else:
                     print("\nYour input value is not in range")
-
-
-
 
             user_tv_str = testVectorGen(circuit_bench, intVal)  # this will need to be passed to the simulator
 
