@@ -48,6 +48,30 @@ def getFaults(faultFile):
     return faults
 
 
+def genFaults(circuit, outFile):
+    outFile.write("# circuit.bench\n#  fault list\n\n")
+    number_of_faults = 0
+    for p in circuit["INPUTS"][1]:
+        outFile.write(p[5:] + "-SA-0" + "\n")
+        outFile.write(p[5:] + "-SA-1" + "\n")
+        number_of_faults = number_of_faults + 2
+
+    for p in circuit["GATES"][1]:
+
+        outFile.write(p[5:] + "-SA-0" + "\n")
+        outFile.write(p[5:] + "-SA-1" + "\n")
+        number_of_faults = number_of_faults + 2
+
+        for m in circuit[p][1]:
+            m = m.split("_")
+
+            outFile.write(p[5:] + "-IN-" + m[1] + "-SA-0" + "\n")
+            outFile.write(p[5:] + "-IN-" + m[1] + "-SA-1" + "\n")
+            number_of_faults = number_of_faults + 2
+
+    outFile.write("\n# total faults: " + str(number_of_faults) + "\n")
+
+
 # -------------------------------------------------------------------------------------------------------------------- #
 # FUNCTION: Neatly prints the Circuit Dictionary:
 def printCkt(circuit):
@@ -768,6 +792,8 @@ def main():
                         print("\nERROR: not a valid integer\n")
 
             # gets the faults that need to be tested
+            fList = open("f_list.txt", "w")
+            genFaults(newCircuit, fList)
             faults = getFaults("f_list.txt")
             temp = open("FaultFile.txt", "w")
             temp.write(json.dumps(faults, indent=4))
