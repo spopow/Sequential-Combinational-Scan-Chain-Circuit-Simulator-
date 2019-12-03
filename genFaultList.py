@@ -112,7 +112,6 @@ def getFaultList(netName):
     return selectedFault
 
 
-# FIXME change to get 15 random faults from the fault list
 def getFaultListStudy(netName):
     # Opening the netlist file:
     netFile = open(netName, "r")

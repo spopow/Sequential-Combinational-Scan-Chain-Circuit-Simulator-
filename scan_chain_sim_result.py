@@ -83,11 +83,15 @@ def scanFaultDetector(goodScanData, faultScanData, fault, simulatorTxt):
     compOut = ''
     # number of cycles it takes to find given fault given on the index of primary outputs it took to detect
     # number of DFFs * test apply cycles + test apply cycles
-    PO_cycles = len(goodScanData["DFF"][0]) * dataPO[1] + dataPO[1] 
+    # PO_cycles = len(goodScanData["DFF"][0]) * dataPO[1] + dataPO[1]
+    PO_cycles = goodScanData["totalCycles"] + dataPO[1]
+
 
     # number of cycles it takes to find given fault given on the index of scan out it took to detect
     # (i.e. number of DFFs * test apply cycle found + test apply cycles + number of DFFs to scan out)
-    DFF_cycles = len(goodScanData["DFF"][0]) * dataDFF[1] + dataDFF[1] + len(goodScanData["DFF"][0])
+    # DFF_cycles = len(goodScanData["DFF"][0]) * dataDFF[1] + dataDFF[1] + len(goodScanData["DFF"][0])
+    DFF_cycles = goodScanData["totalCycles"] + dataDFF[1] + len(goodScanData["DFF"][0])
+
 
     
     if dataPO[0] and PO_cycles < DFF_cycles:
