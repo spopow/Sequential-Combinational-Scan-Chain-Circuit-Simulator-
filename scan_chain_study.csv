@@ -1,4 +1,4 @@
-,% of Faults Found,Average Cycles
-Partial,97.37,53.66
-Full,96.05,81.81
-Parallel,98.68,3.29
+,% of Faults Found,Average Cycles
+Partial,99.65,64.65
+Full,100.0,132.01
+Parallel,54.67,7.63

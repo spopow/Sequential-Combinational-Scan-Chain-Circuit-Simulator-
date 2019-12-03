@@ -1,2 +1,0 @@
-******************GOOD CIRCUIT SIM********************
-Flip Flop & Primary Outputs @ n = 4

@@ -378,8 +378,6 @@ def gateCalc(circuit, node):
 # -------------------------------------------------------------------------------------------------------------------- #
 # FUNCTION: Updating the circuit dictionary with the input line, and also resetting the gates and output lines
 def inputRead(circuit, line):
-    #print("DOes it break at line?")
-    #print(line)     DEBUG COMMENT
     # Checking if input bits are enough for the circuit
     if len(line) < circuit["INPUT_WIDTH"][1]:
         return -1
