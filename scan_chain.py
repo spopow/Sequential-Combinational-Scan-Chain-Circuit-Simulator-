@@ -56,23 +56,21 @@ def scanChain(circuit, scanType, testVector, totalCycles):
         # Counter to keep track of what testvector bit you are accessing
         index = 0
 
-        if scanType == 'partial':
+        # Counter to keep track of the number of DFFs
+        dffCounter = 0
 
-            # Counter to keep track of the number of DFFs
-            dffCounter = 0
+        # For each gate in the circuit, find the ones that DFFs
+        for gate in circuit:
+            if circuit[gate][0] == 'DFF':
+                dffCounter = dffCounter + 1
 
-            # For each gate in the circuit, find the ones that DFFs
-            for gate in circuit:
-                if circuit[gate][0] == 'DFF':
-                    dffCounter = dffCounter + 1
+        for gate in circuit:
+            if circuit[gate][0] == 'DFF':
+                # When you find a DFF, move the testvector bit in its place
+                circuit[gate][3] = testVector[index]
+                index = index + 1
 
-            for gate in circuit:
-                if circuit[gate][0] == 'DFF':
-                    # When you find a DFF, move the testvector bit in its place
-                    circuit[gate][3] = testVector[index]
-                    index = index + 1
-
-            totalCycles = totalCycles + int(ceil(dffCounter / 2))
+        totalCycles = totalCycles + int(ceil(dffCounter / 2))
 
     return circuit, totalCycles
 
