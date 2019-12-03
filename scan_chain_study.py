@@ -109,7 +109,7 @@ def scanFaultDetector(goodScanData, faultScanData, faultsFound, cycleFaultFound,
     scanOutCycles = getScanOutCycles(goodScanData["circuit"], scanType)
 
     # number of cycles it takes to find given fault given on the index of primary outputs it took to detect
-    # PO_cycles = goodScanData["totalCycles"] + dataPO[1]
+    # PO_cycles = goodScanData["totalCycles"] + dataPO[1]  (number test applies)
     PO_cycles = scanOutCycles * dataPO[1] + dataPO[1]
 
     # number of cycles it takes to find given fault given on the index of scan out it took to detect
@@ -369,7 +369,7 @@ def printCSV(benchName, percentFoundPartial, percentFoundFull, percentFoundParal
     fullLine = ['Full', str(percentFoundFull), str(avgCycleFull)]
     parallelLine = ['Parallel', str(percentFoundParallel), str(avgCycleParallel)]
 
-    with open('scan_chain_study.csv', 'w') as csvFile:
+    with open("scan_chain_study_420_1.csv", 'w') as csvFile:
         writer = csv.writer(csvFile)
         writer.writerow(firstLine)
         writer.writerow(partialLine)

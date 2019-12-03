@@ -1,8 +1,1 @@
-,% of Faults Found,Average Cycles
-
-Partial,99.31,101.54
-
-Full,100.0,201.01
-
-Parallel,100.0,101.01
-
+,% of Faults Found,Average CyclesPartial,53.33,12.0Full,26.67,33.0Parallel,26.67,12.01 s526
