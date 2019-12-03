@@ -20,7 +20,7 @@ def scan_output_file(bench_file, testApplyCycles, fault, scanType):
     scanInTV, PrimaryInputs = LFSRtestGen(bench_file, testApplyCycles)
 
     # Text file that will hold all the results
-    simulatorTxt = open("Scan Output.txt", "w+")
+    simulatorTxt = open("scan_chain_results.txt", "w+")
 
     # Create dictionary of circuit via benchmark file
     circuit = netRead(bench_file)
@@ -73,6 +73,8 @@ def scan_output_file(bench_file, testApplyCycles, fault, scanType):
     #     simulatorTxt.write(compOut)
 
     simulatorTxt.close()
+
+    print("created scan_chain_results.txt")
 
 
 # Wrapper function to output the cycle number the fault was found
