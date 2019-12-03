@@ -253,7 +253,6 @@ def storeScanOut(circuit, someList):
             scanOutputs.append(circuit[gate][3])
     return scanOutputs
 
-
 # FUNCTION: storePrimaryOutputs
 # Outputs: appends PO into a list, that would be used later for comparison
 # Inputs: circuit dictionary
