@@ -115,7 +115,7 @@ def scanFaultDetector(goodScanData, faultScanData, faultsFound, cycleFaultFound,
     # number of cycles it takes to find given fault given on the index of scan out it took to detect
     # DFF_cycles = goodScanData["totalCycles"] + dataDFF[1] + scanOutCycles
     DFF_cycles = scanOutCycles * dataDFF[1] + dataDFF[1] + scanOutCycles
-    
+
 
     if dataPO[0] and PO_cycles < DFF_cycles:
         faultsFound = faultsFound + 1
