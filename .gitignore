@@ -13,3 +13,5 @@ __pycache__/testVectorUI.cpython-37.pyc
 __pycache__/TVgen.cpython-37.pyc
 simulator.txt
 temp.txt
+*.pyc
+simulator.txt
