@@ -552,6 +552,19 @@ def getTestVectorRange(circuit):
 
     return testVectorMin, testVectorMax
 
+def getTestVectorRangePO(circuit):
+    testVectorWidth = 0
+
+    for _ in circuit['INPUTS'][1]:
+        testVectorWidth = testVectorWidth + 1
+
+
+    testVectorWidth = testVectorWidth - 1
+    testVectorMin = (-1) * pow(2, testVectorWidth)
+    testVectorMax = pow(2, testVectorWidth) - 1
+
+    return testVectorMin, testVectorMax
+
 # -------------------------------------------------------------------------------------------------------------------- #
 # FUNCTION: Main Function
 def main():
@@ -882,7 +895,7 @@ def main():
             # take file name and generate fault list for bench file ; output to terminal as list of numbers
             fault = genFaultList.getFaultList(circuit_bench)
             circuit_seq = netRead(circuit_bench)
-            testVectorRange = getTestVectorRange(circuit_seq)
+            testVectorRange = getTestVectorRangePO(circuit_seq)
             intVal = 0
             while True:
                 print("\nUse 0 as your test vector? Otherwise, select a value between " + str(testVectorRange[0]) + " and " + str(testVectorRange[1]) + ":")

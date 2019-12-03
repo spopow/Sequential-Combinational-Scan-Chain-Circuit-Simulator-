@@ -86,9 +86,6 @@ def scan_chain_study():
 def scan_output_file(bench_file, testApplyCycles, fault, scanType, inputTVs, flipFlopTVs, faultsFound, cycleFaultFound):
     from p2sim import netRead
 
-    # Text file that will hold all the results
-    simulatorTxt = open("Scan Output.txt", "w+")
-
     # Create dictionary of circuit via benchmark file
     circuit = netRead(bench_file)
 
