@@ -56,7 +56,6 @@ def scanChain(circuit, scanType, testVector, totalCycles):
         # Counter to keep track of what testvector bit you are accessing
         index = 0
 
-
         # Counter to keep track of the number of DFFs
         dffCounter = 0
 
