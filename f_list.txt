@@ -1,5 +1,6 @@
-# circuit.bench 
-# full SSA list
+# circuit.bench
+#  fault list
+
 1-SA-0
 1-SA-1
 4-SA-0
@@ -1064,4 +1065,5 @@
 432-IN-425-SA-1
 432-IN-429-SA-0
 432-IN-429-SA-1
+
 # total faults: 1064
